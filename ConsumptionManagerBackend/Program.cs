@@ -6,6 +6,7 @@ using System.Reflection;
 using ConsumptionManagerBackend.Services;
 using Microsoft.AspNetCore.Identity;
 using ConsumptionManagerBackend.Database.DatabaseModels;
+using ConsumptionManagerBackend.Exceptions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,8 +23,14 @@ builder.Services.AddScoped<IUserService,UserService>();
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 //add password hasher
 builder.Services.AddScoped<IPasswordHasher<UserCredentials>,PasswordHasher<UserCredentials>>();
+//add middleware
+builder.Services.AddScoped<ExceptionHandlingMiddleware>();
+
 
 var app = builder.Build();
+
+//use middleware
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

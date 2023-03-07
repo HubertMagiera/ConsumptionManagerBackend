@@ -2,6 +2,7 @@
 using ConsumptionManagerBackend.Database;
 using ConsumptionManagerBackend.Database.DatabaseModels;
 using ConsumptionManagerBackend.DtoModels;
+using ConsumptionManagerBackend.Exceptions;
 using Microsoft.AspNetCore.Identity;
 using System.Text.RegularExpressions;
 
@@ -32,15 +33,15 @@ namespace ConsumptionManagerBackend.Services
         {
             bool emailFormat = validateEmailFormat(userCredentials.UserEmail);
             if (emailFormat == false)
-                throw new Exception();
+                throw new IncorrectEmailException("Podany adres email ma niepoprawny format.");
 
             bool passwordMeetsRules = validatePasswordMeetsRules(userCredentials.UserPassword);
             if (passwordMeetsRules == false)
-                throw new Exception();
+                throw new PasswordDoesNotMeetRulesException("Podane haslo nie spelnia wymogow bezpieczenstwa.");
 
             var user = _context.user_credentials.FirstOrDefault(user => user.user_email == userCredentials.UserEmail);
             if (user != null)
-                throw new Exception();
+                throw new EmailNotUniqueException("Podany adres email jest juz przypisany do innego konta. Prosze podac inny adres email.");
 
 
             var credentialsToBeAdded = _mapper.Map<UserCredentials>(userCredentials);
@@ -61,7 +62,7 @@ namespace ConsumptionManagerBackend.Services
             //can not contain whitespaces
             //must contain one of the special characters
 
-            if (password.Length < 8 || !password.Any(char.IsUpper) || !password.Any(char.IsLower) || !password.Any(char.IsDigit) || !password.Any(char.IsWhiteSpace))
+            if (password.Length < 8 || !password.Any(char.IsUpper) || !password.Any(char.IsLower) || !password.Any(char.IsDigit) || password.Any(char.IsWhiteSpace))
                 return false;
 
             string specialCharacters = "!@#$%^&*+-/?<>;~`[]{}:,.|=_";//special characters. At least one of them needs to be present in provided password
