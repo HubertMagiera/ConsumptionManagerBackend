@@ -1,4 +1,5 @@
 ﻿using ConsumptionManagerBackend.DtoModels;
+using ConsumptionManagerBackend.DtoModels.ModelsForAdding;
 using ConsumptionManagerBackend.DtoModels.ModelsForUpdates;
 
 namespace ConsumptionManagerBackend.Services

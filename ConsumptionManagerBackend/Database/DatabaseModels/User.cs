@@ -7,5 +7,7 @@
         public string user_surname { get; set; }
         public int electricity_tariff_id { get; set; }
         public int user_credentials_id { get; set; }
+
+        public UserCredentials userCredentials { get; set; }
     }
 }
