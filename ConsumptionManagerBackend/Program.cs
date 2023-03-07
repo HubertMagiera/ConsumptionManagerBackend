@@ -3,6 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using AutoMapper;
 using System.Configuration;
 using System.Reflection;
+using ConsumptionManagerBackend.Services;
+using Microsoft.AspNetCore.Identity;
+using ConsumptionManagerBackend.Database.DatabaseModels;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,8 +16,12 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddDbContext<EnergySaverDbContext>(options => options.UseMySQL(builder.Configuration.GetConnectionString("ConnectionString")));
 builder.Services.AddSwaggerGen();
+//add services
+builder.Services.AddScoped<IUserService,UserService>();
 //add automapper
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
+//add password hasher
+builder.Services.AddScoped<IPasswordHasher<UserCredentials>,PasswordHasher<UserCredentials>>();
 
 var app = builder.Build();
 
