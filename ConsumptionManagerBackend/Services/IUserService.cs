@@ -12,5 +12,7 @@ namespace ConsumptionManagerBackend.Services
         void AddUserData(AddUserDto addUser);
 
         void ChangePassword(ChangePasswordDto credentials);
+
+        TokenModel RefreshSession(TokenModel model);
     }
 }

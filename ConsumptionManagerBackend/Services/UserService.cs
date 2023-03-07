@@ -6,6 +6,7 @@ using ConsumptionManagerBackend.DtoModels.ModelsForAdding;
 using ConsumptionManagerBackend.DtoModels.ModelsForUpdates;
 using ConsumptionManagerBackend.Exceptions;
 using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
 using System.Text.RegularExpressions;
 
 namespace ConsumptionManagerBackend.Services
@@ -94,6 +95,35 @@ namespace ConsumptionManagerBackend.Services
             _context.SaveChanges();
 
         }
+
+        public TokenModel RefreshSession(TokenModel model)
+        {
+            ClaimsPrincipal principal = _tokenService.GetPrincipalFromOldToken(model.AccessToken);
+            int userId = Convert.ToInt32(principal.FindFirst(ClaimTypes.NameIdentifier).Value);
+
+            var user = _context.user.FirstOrDefault(userFromDb => userFromDb.user_id == userId);
+            if (user == null)
+                throw new UserNotFoundException("Nie odnaleziono uzytkownika, na ktory wskazuje podany token");
+
+            //check if provided refresh token and refresh token from db are the same
+            var userCredentials = _context.user_credentials.FirstOrDefault(cred => cred.user_credentials_id == user.user_credentials_id);
+            if (userCredentials.refresh_token != model.RefreshToken)
+                throw new RefreshTokenNotValidException("Podany refresh token jest nieodpowiedni");
+
+            //if everything is okay, create new tokens
+            string accessToken = _tokenService.CreateToken(userCredentials);
+            string refreshToken = _tokenService.CreateRefreshToken();
+
+            userCredentials.refresh_token = refreshToken;
+            _context.SaveChanges();
+            return new TokenModel
+            {
+                AccessToken = accessToken,
+                RefreshToken = refreshToken
+        };
+
+        }
+
         private bool validatePasswordMeetsRules(string password)
         {
             //password needs to be:
@@ -125,6 +155,6 @@ namespace ConsumptionManagerBackend.Services
             return result;
         }
 
-
+        
     }
 }

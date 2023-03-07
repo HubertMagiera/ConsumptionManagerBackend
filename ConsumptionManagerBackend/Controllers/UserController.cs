@@ -38,10 +38,18 @@ namespace ConsumptionManagerBackend.Controllers
         }
         [HttpPost]
         [Route("login")]
-        public ActionResult LoginUser(UserCredentialsDto loginUser)
+        public ActionResult<TokenModel> LoginUser(UserCredentialsDto loginUser)
         {
             return Ok(_userService.LoginUser(loginUser));
 
+        }
+
+        [HttpPost]
+        [Route("refreshSession")]
+        [Authorize]
+        public ActionResult<TokenModel> RefreshSession(TokenModel model)
+        {
+            return Ok(_userService.RefreshSession(model));
         }
     }
 }
