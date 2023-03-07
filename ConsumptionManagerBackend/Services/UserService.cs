@@ -15,20 +15,44 @@ namespace ConsumptionManagerBackend.Services
         private readonly EnergySaverDbContext _context;
         private readonly IPasswordHasher<UserCredentials> _passwordHasher;
         private readonly IMapper _mapper;
-        public UserService(EnergySaverDbContext context,IPasswordHasher<UserCredentials> passwordHasher,IMapper mapper)
+        private readonly ITokenService _tokenService;
+
+        public UserService(EnergySaverDbContext context,IPasswordHasher<UserCredentials> passwordHasher,IMapper mapper, ITokenService tokenService)
         {
             _context = context;
             _passwordHasher = passwordHasher;
             _mapper = mapper;
+            _tokenService = tokenService;
         }
         public void AddUserData(AddUserDto addUser)
         {
             throw new NotImplementedException();
         }
 
-        public string LoginUser(UserCredentialsDto userCredentials)
+        public TokenModel LoginUser(UserCredentialsDto userCredentials)
         {
-            throw new NotImplementedException();
+            //check if provided email is in db
+            var creds = _context.user_credentials.FirstOrDefault(user => user.user_email == userCredentials.UserEmail);
+            if (creds == null)
+                throw new WrongCredentialsException("Prosze sprawdzic poprawnosc podanych danych logowania.");
+
+            //check if provided password is the same as the one in db
+            var validationResult = _passwordHasher.VerifyHashedPassword(creds, creds.user_password, userCredentials.UserPassword);
+            if(validationResult != PasswordVerificationResult.Success)
+                throw new WrongCredentialsException("Prosze sprawdzic poprawnosc podanych danych logowania.");
+
+            //if provided credentials are ok, login user by creating tokens
+            string accessToken = _tokenService.CreateToken(creds);
+            string refreshToken = _tokenService.CreateRefreshToken();
+
+            creds.refresh_token = refreshToken;//replace old refresh token with a new one
+            _context.SaveChanges();
+
+            return new TokenModel 
+            { 
+                AccessToken = accessToken, 
+                RefreshToken = refreshToken 
+            };
         }
 
         public void RegisterUser(UserCredentialsDto userCredentials)

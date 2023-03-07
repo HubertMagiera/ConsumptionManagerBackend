@@ -6,7 +6,7 @@ namespace ConsumptionManagerBackend.Services
 {
     public interface IUserService
     {
-        string LoginUser(UserCredentialsDto userCredentials);
+        TokenModel LoginUser(UserCredentialsDto userCredentials);
         void RegisterUser(UserCredentialsDto userCredentials);
 
         void AddUserData(AddUserDto addUser);

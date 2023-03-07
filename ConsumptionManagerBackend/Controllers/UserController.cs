@@ -36,5 +36,12 @@ namespace ConsumptionManagerBackend.Controllers
                 StatusCode = StatusCodes.Status201Created
             };
         }
+        [HttpPost]
+        [Route("login")]
+        public ActionResult LoginUser(UserCredentialsDto loginUser)
+        {
+            return Ok(_userService.LoginUser(loginUser));
+
+        }
     }
 }
