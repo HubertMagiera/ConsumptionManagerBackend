@@ -2,6 +2,7 @@
 using ConsumptionManagerBackend.Database;
 using ConsumptionManagerBackend.Database.DatabaseModels;
 using ConsumptionManagerBackend.DtoModels;
+using ConsumptionManagerBackend.DtoModels.ModelsForUpdates;
 using ConsumptionManagerBackend.Exceptions;
 using Microsoft.AspNetCore.Identity;
 using System.Text.RegularExpressions;
@@ -51,7 +52,23 @@ namespace ConsumptionManagerBackend.Services
             _context.SaveChanges();
             
         }
+        public void ChangePassword(ChangePasswordDto credentials)
+        {
+            bool passwordMeetsRules = validatePasswordMeetsRules(credentials.UserNewPassword);
+            if (passwordMeetsRules == false)
+                throw new PasswordDoesNotMeetRulesException("Nowe haslo nie spelnia wymogow bezpieczenstwa.");
+            var userCredentials = _context.user_credentials.FirstOrDefault(user => user.user_email == credentials.UserEmail);
+            if (userCredentials == null)
+                throw new WrongCredentialsException("Prosze sprawdzic poprawnosc podanych danych logowania.");
 
+            var passwordVerificationResult = _passwordHasher.VerifyHashedPassword(userCredentials, userCredentials.user_password, credentials.UserOldPassword);
+            if(passwordVerificationResult != PasswordVerificationResult.Success)
+                throw new WrongCredentialsException("Prosze sprawdzic poprawnosc podanych danych logowania.");
+
+            userCredentials.user_password = _passwordHasher.HashPassword(userCredentials, credentials.UserNewPassword);
+            _context.SaveChanges();
+
+        }
         private bool validatePasswordMeetsRules(string password)
         {
             //password needs to be:
@@ -82,5 +99,7 @@ namespace ConsumptionManagerBackend.Services
             bool result = pattern.IsMatch(emailAddress);
             return result;
         }
+
+
     }
 }

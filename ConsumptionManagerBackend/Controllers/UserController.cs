@@ -1,5 +1,7 @@
 ﻿using ConsumptionManagerBackend.DtoModels;
+using ConsumptionManagerBackend.DtoModels.ModelsForUpdates;
 using ConsumptionManagerBackend.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ConsumptionManagerBackend.Controllers
@@ -19,6 +21,18 @@ namespace ConsumptionManagerBackend.Controllers
         {
             _userService.RegisterUser(userCredentials);
             return new ObjectResult(null){
+                StatusCode = StatusCodes.Status201Created
+            };
+        }
+
+        [HttpPost]
+        [Route("changePassword")]
+        [Authorize]
+        public ActionResult ChangePassword(ChangePasswordDto changePassword)
+        {
+            _userService.ChangePassword(changePassword);
+            return new ObjectResult(null)
+            {
                 StatusCode = StatusCodes.Status201Created
             };
         }
