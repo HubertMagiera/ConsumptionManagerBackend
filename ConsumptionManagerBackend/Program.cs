@@ -7,8 +7,14 @@ using ConsumptionManagerBackend.Services;
 using Microsoft.AspNetCore.Identity;
 using ConsumptionManagerBackend.Database.DatabaseModels;
 using ConsumptionManagerBackend.Exceptions;
+using ConsumptionManagerBackend;
 
 var builder = WebApplication.CreateBuilder(args);
+
+
+//read authentication settings from appsettings.json and bind them to appropriate class
+AuthenticationSettings settings = new AuthenticationSettings();
+builder.Configuration.GetSection("Jwt").Bind(settings);
 
 // Add services to the container.
 

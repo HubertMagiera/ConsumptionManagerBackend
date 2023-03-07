@@ -9,5 +9,7 @@ namespace ConsumptionManagerBackend.Database.DatabaseModels
         public string user_email { get; set; }
 
         public string user_password { get; set; }
+
+        public string refresh_token { get; set; }
     }
 }
