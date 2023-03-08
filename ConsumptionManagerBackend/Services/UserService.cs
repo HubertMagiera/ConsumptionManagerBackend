@@ -25,7 +25,7 @@ namespace ConsumptionManagerBackend.Services
             _mapper = mapper;
             _tokenService = tokenService;
         }
-        public void AddUserData(AddUserDto addUser)
+        public TokenModel AddUserData(AddUserDto addUser)
         {
             //method used when registering new account
             //it adds user info like name, surname, tariff id and credentials id
@@ -34,22 +34,33 @@ namespace ConsumptionManagerBackend.Services
             //validate if user provided all of required data
             if (addUser.ElectricityTariffId == null || addUser.UserCredentialsId == null ||
                 addUser.UserName == null || addUser.UserSurname == null)
-                throw new NotAllDataProvidedException("Prosze podac wszystkie wymagane dane");
+                throw new NotAllDataProvidedException("Prosze podac wszystkie wymagane dane.");
 
             //if all data is provided, check if tariff id exists in db (TO BE ADDED)
-            //CHECK IF CREDENTIALS ARE ALREADY IN USE (TO BE ADDED)
-            //change database, add autoincrement to all primary keys
 
 
-            //check if provided credentials id exists in database
+            //check if provided credentials id is created
             var credentials = _context.user_credentials.FirstOrDefault(creds => creds.user_credentials_id == addUser.UserCredentialsId);
             if (credentials == null)
-                throw new UserNotFoundException("Prosze sprawdzic poprawnosc podanych danych");
+                throw new UserNotFoundException("Prosze sprawdzic poprawnosc podanych danych.");
+
+            //check if any user has provided credentials id assigned to account
+            var userWithTheSameCredentials = _context.user.FirstOrDefault(credsId => credsId.user_credentials_id == addUser.UserCredentialsId);
+            if (userWithTheSameCredentials != null)
+                throw new CredentialsAlreadyInUseException("Prosze sprawdzic poprawnosc podanych danych.");
 
             //if all is good, add user to db
             var userToBeAdded = _mapper.Map<User>(addUser);
             _context.user.Add(userToBeAdded);
             _context.SaveChanges();
+
+            //after user is created, perform login and return tokens
+            string accessToken = _tokenService.CreateToken(credentials);
+            return new TokenModel
+            {
+                AccessToken = accessToken,
+                RefreshToken = credentials.refresh_token
+            };
 
         }
 

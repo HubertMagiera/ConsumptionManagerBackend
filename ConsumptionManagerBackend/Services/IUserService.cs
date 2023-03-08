@@ -9,7 +9,7 @@ namespace ConsumptionManagerBackend.Services
         TokenModel LoginUser(UserCredentialsDto userCredentials);
         int RegisterUser(UserCredentialsDto userCredentials);
 
-        void AddUserData(AddUserDto addUser);
+        TokenModel AddUserData(AddUserDto addUser);
 
         void ChangePassword(ChangePasswordDto credentials);
 

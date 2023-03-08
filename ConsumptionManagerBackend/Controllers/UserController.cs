@@ -18,7 +18,7 @@ namespace ConsumptionManagerBackend.Controllers
         }
         [HttpPost]
         [Route("register")]
-        public ActionResult RegisterNewUser(UserCredentialsDto userCredentials)
+        public ActionResult RegisterNewUser([FromBody] UserCredentialsDto userCredentials)
         {
             int id =_userService.RegisterUser(userCredentials);
             return new ObjectResult(null)
@@ -31,7 +31,7 @@ namespace ConsumptionManagerBackend.Controllers
         [HttpPost]
         [Route("changePassword")]
         [Authorize]
-        public ActionResult ChangePassword(ChangePasswordDto changePassword)
+        public ActionResult ChangePassword([FromBody] ChangePasswordDto changePassword)
         {
             _userService.ChangePassword(changePassword);
             return new ObjectResult(null)
@@ -41,7 +41,7 @@ namespace ConsumptionManagerBackend.Controllers
         }
         [HttpPost]
         [Route("login")]
-        public ActionResult<TokenModel> LoginUser(UserCredentialsDto loginUser)
+        public ActionResult<TokenModel> LoginUser([FromBody] UserCredentialsDto loginUser)
         {
             return Ok(_userService.LoginUser(loginUser));
 
@@ -50,20 +50,16 @@ namespace ConsumptionManagerBackend.Controllers
         [HttpPost]
         [Route("refreshSession")]
         [Authorize]
-        public ActionResult<TokenModel> RefreshSession(TokenModel model)
+        public ActionResult<TokenModel> RefreshSession([FromBody] TokenModel model)
         {
             return Ok(_userService.RefreshSession(model));
         }
 
         [HttpPost]
-        [Route("CreateUser")]
-        public ActionResult CreateUser(AddUserDto addUser)
+        [Route("createUser")]
+        public ActionResult<TokenModel> CreateUser([FromBody] AddUserDto addUser)
         {
-            _userService.AddUserData(addUser);
-            return new ObjectResult(null)
-            {
-                StatusCode = StatusCodes.Status201Created
-            };
+            return Ok(_userService.AddUserData(addUser));
         }
     }
 }
