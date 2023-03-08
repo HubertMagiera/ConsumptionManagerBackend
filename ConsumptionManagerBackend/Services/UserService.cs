@@ -27,7 +27,30 @@ namespace ConsumptionManagerBackend.Services
         }
         public void AddUserData(AddUserDto addUser)
         {
-            throw new NotImplementedException();
+            //method used when registering new account
+            //it adds user info like name, surname, tariff id and credentials id
+            //in case user wants to change his tariff, another method needs to be used
+
+            //validate if user provided all of required data
+            if (addUser.ElectricityTariffId == null || addUser.UserCredentialsId == null ||
+                addUser.UserName == null || addUser.UserSurname == null)
+                throw new NotAllDataProvidedException("Prosze podac wszystkie wymagane dane");
+
+            //if all data is provided, check if tariff id exists in db (TO BE ADDED)
+            //CHECK IF CREDENTIALS ARE ALREADY IN USE (TO BE ADDED)
+            //change database, add autoincrement to all primary keys
+
+
+            //check if provided credentials id exists in database
+            var credentials = _context.user_credentials.FirstOrDefault(creds => creds.user_credentials_id == addUser.UserCredentialsId);
+            if (credentials == null)
+                throw new UserNotFoundException("Prosze sprawdzic poprawnosc podanych danych");
+
+            //if all is good, add user to db
+            var userToBeAdded = _mapper.Map<User>(addUser);
+            _context.user.Add(userToBeAdded);
+            _context.SaveChanges();
+
         }
 
         public TokenModel LoginUser(UserCredentialsDto userCredentials)
@@ -56,7 +79,7 @@ namespace ConsumptionManagerBackend.Services
             };
         }
 
-        public void RegisterUser(UserCredentialsDto userCredentials)
+        public int RegisterUser(UserCredentialsDto userCredentials)
         {
             bool emailFormat = validateEmailFormat(userCredentials.UserEmail);
             if (emailFormat == false)
@@ -73,9 +96,12 @@ namespace ConsumptionManagerBackend.Services
 
             var credentialsToBeAdded = _mapper.Map<UserCredentials>(userCredentials);
             credentialsToBeAdded.user_password = _passwordHasher.HashPassword(credentialsToBeAdded,userCredentials.UserPassword);
+            credentialsToBeAdded.refresh_token = _tokenService.CreateRefreshToken();
 
             _context.Add(credentialsToBeAdded);
             _context.SaveChanges();
+
+            return credentialsToBeAdded.user_credentials_id;
             
         }
         public void ChangePassword(ChangePasswordDto credentials)
@@ -114,7 +140,7 @@ namespace ConsumptionManagerBackend.Services
             string accessToken = _tokenService.CreateToken(userCredentials);
             string refreshToken = _tokenService.CreateRefreshToken();
 
-            userCredentials.refresh_token = refreshToken;
+            userCredentials.refresh_token = refreshToken;//replace refresh tokens in db
             _context.SaveChanges();
             return new TokenModel
             {

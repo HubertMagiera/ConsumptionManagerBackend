@@ -1,4 +1,5 @@
 ﻿using ConsumptionManagerBackend.DtoModels;
+using ConsumptionManagerBackend.DtoModels.ModelsForAdding;
 using ConsumptionManagerBackend.DtoModels.ModelsForUpdates;
 using ConsumptionManagerBackend.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -19,9 +20,11 @@ namespace ConsumptionManagerBackend.Controllers
         [Route("register")]
         public ActionResult RegisterNewUser(UserCredentialsDto userCredentials)
         {
-            _userService.RegisterUser(userCredentials);
-            return new ObjectResult(null){
-                StatusCode = StatusCodes.Status201Created
+            int id =_userService.RegisterUser(userCredentials);
+            return new ObjectResult(null)
+            {
+                StatusCode = StatusCodes.Status201Created,
+                Value = id
             };
         }
 
@@ -50,6 +53,17 @@ namespace ConsumptionManagerBackend.Controllers
         public ActionResult<TokenModel> RefreshSession(TokenModel model)
         {
             return Ok(_userService.RefreshSession(model));
+        }
+
+        [HttpPost]
+        [Route("CreateUser")]
+        public ActionResult CreateUser(AddUserDto addUser)
+        {
+            _userService.AddUserData(addUser);
+            return new ObjectResult(null)
+            {
+                StatusCode = StatusCodes.Status201Created
+            };
         }
     }
 }

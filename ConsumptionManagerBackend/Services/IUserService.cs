@@ -7,7 +7,7 @@ namespace ConsumptionManagerBackend.Services
     public interface IUserService
     {
         TokenModel LoginUser(UserCredentialsDto userCredentials);
-        void RegisterUser(UserCredentialsDto userCredentials);
+        int RegisterUser(UserCredentialsDto userCredentials);
 
         void AddUserData(AddUserDto addUser);
 
