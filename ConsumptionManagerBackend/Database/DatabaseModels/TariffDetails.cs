@@ -4,7 +4,7 @@
     {
         public int tariff_details_id { get; set; }
 
-        public int electricity_tariff_if { get; set; }
+        public int electricity_tariff_id { get; set; }
 
         public int day_of_week_id { get; set; }
 

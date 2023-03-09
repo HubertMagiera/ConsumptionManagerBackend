@@ -11,5 +11,7 @@
         public string tariff_description { get; set; }
 
         public EnergySupplier energy_supplier { get; set; }
+
+        public List<TariffDetails> tariff_details { get; set;}
     }
 }
