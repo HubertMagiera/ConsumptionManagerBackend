@@ -1,7 +1,9 @@
 ﻿namespace ConsumptionManagerBackend.DtoModels.ModelsForViewing
 {
-    public class EnergySupplierDto
+    public class EnergySupplierWithTariffsDto
     {
         public string EnergySupplierName { get; set; }
+
+        public List<ElectricityTariffDto> tariffs { get; set; }
     }
 }
