@@ -13,5 +13,9 @@
         public DateTime end_time { get; set;}
 
         public double price_per_kwh { get; set; }
+
+        public DayOfWeek day_of_week { get; set;}
+
+        public ElectricityTariff electricity_tariff { get; set; }
     }
 }

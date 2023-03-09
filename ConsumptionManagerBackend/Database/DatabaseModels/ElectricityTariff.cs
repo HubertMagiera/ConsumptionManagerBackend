@@ -9,5 +9,7 @@
         public int energy_supplier_id { get; set; }
 
         public string tariff_description { get; set; }
+
+        public EnergySupplier energy_supplier { get; set; }
     }
 }
