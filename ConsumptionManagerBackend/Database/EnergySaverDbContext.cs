@@ -15,6 +15,7 @@ namespace ConsumptionManagerBackend.Database
         public DbSet<ElectricityTariff> electricity_tariff { get; set; }
         public DbSet<DatabaseModels.DayOfWeek> day_of_week { get; set; }
         public DbSet<TariffDetails> tariff_details { get; set; }
+        public DbSet<EnergySupplier> energy_supplier { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -28,6 +29,8 @@ namespace ConsumptionManagerBackend.Database
             modelBuilder.Entity<DatabaseModels.DayOfWeek>().HasKey(key => key.day_of_week_id);
 
             modelBuilder.Entity<TariffDetails>().HasKey(key => key.tariff_details_id);
+
+            modelBuilder.Entity<EnergySupplier>().HasKey(key => key.energy_supplier_id);
         }
     }
 }
