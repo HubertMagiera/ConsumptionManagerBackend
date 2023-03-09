@@ -1,4 +1,6 @@
-﻿namespace ConsumptionManagerBackend.Database.DatabaseModels
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace ConsumptionManagerBackend.Database.DatabaseModels
 {
     public class ElectricityTariff
     {
@@ -10,6 +12,7 @@
 
         public string tariff_description { get; set; }
 
+        [ForeignKey("energy_supplier_id")]
         public EnergySupplier energy_supplier { get; set; }
 
         public List<TariffDetails> tariff_details { get; set;}

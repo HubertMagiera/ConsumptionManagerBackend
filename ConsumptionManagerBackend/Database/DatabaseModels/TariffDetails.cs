@@ -1,4 +1,6 @@
-﻿namespace ConsumptionManagerBackend.Database.DatabaseModels
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace ConsumptionManagerBackend.Database.DatabaseModels
 {
     public class TariffDetails
     {
@@ -14,8 +16,10 @@
 
         public double price_per_kwh { get; set; }
 
+        [ForeignKey("day_of_week_id")]
         public DayOfWeek day_of_week { get; set;}
 
+        [ForeignKey("electricity_tariff_id")]
         public ElectricityTariff electricity_tariff { get; set; }
     }
 }

@@ -27,7 +27,7 @@ namespace ConsumptionManagerBackend
                 .ForMember(destination => destination.EnergySupplierName, map => map.MapFrom(baseClass => baseClass.energy_supplier_name))
                 .ForMember(destination => destination.tariffs, map => map.MapFrom(baseClass => baseClass.tariffs));
 
-            CreateMap<ElectricityTariff, ElectricityTariffDto>()
+            CreateMap<ElectricityTariff, ElectricityTariffWithDetailsDto>()
                 .ForMember(destination => destination.TariffName, map => map.MapFrom(baseClass => baseClass.tariff_name))
                 .ForMember(destination => destination.TariffDescription, map => map.MapFrom(baseClass => baseClass.tariff_description))
                 .ForMember(destination => destination.EnergySupplierName, map => map.MapFrom(baseClass => baseClass.energy_supplier.energy_supplier_name))
@@ -41,6 +41,11 @@ namespace ConsumptionManagerBackend
 
             CreateMap<EnergySupplier, EnergySupplierDto>()
                 .ForMember(destination => destination.EnergySupplierName, map => map.MapFrom(baseClass => baseClass.energy_supplier_name));
+
+            CreateMap<ElectricityTariff, ElectricityTariffDto>()
+                .ForMember(destination => destination.TariffName, map => map.MapFrom(baseClass => baseClass.tariff_name))
+                .ForMember(destination => destination.TariffDescription, map => map.MapFrom(baseClass => baseClass.tariff_description))
+                .ForMember(destination => destination.EnergySupplierName, map => map.MapFrom(baseClass => baseClass.energy_supplier.energy_supplier_name));
         }
 
 

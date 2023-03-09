@@ -37,6 +37,7 @@ namespace ConsumptionManagerBackend.Services
                 throw new NotAllDataProvidedException("Prosze podac wszystkie wymagane dane.");
 
             //if all data is provided, check if tariff id exists in db (TO BE ADDED)
+            //MAYBE USER SHOULD PROVIDE TARIFF NAME AND ENERGY SUPPLIER NAME INSTEAD OF ID
 
 
             //check if provided credentials id is created

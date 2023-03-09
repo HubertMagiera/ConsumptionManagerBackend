@@ -1,6 +1,4 @@
-﻿using ConsumptionManagerBackend.Database.DatabaseModels;
-
-namespace ConsumptionManagerBackend.DtoModels.ModelsForViewing
+﻿namespace ConsumptionManagerBackend.DtoModels.ModelsForViewing
 {
     public class ElectricityTariffDto
     {
@@ -9,7 +7,5 @@ namespace ConsumptionManagerBackend.DtoModels.ModelsForViewing
         public string TariffDescription { get; set; }
 
         public string EnergySupplierName { get; set; }
-
-        public List<TariffDetailsDto> TariffDetails { get; set; }
     }
 }

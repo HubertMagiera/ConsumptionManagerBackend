@@ -4,6 +4,6 @@
     {
         public string EnergySupplierName { get; set; }
 
-        public List<ElectricityTariffDto> tariffs { get; set; }
+        public List<ElectricityTariffWithDetailsDto> tariffs { get; set; }
     }
 }
