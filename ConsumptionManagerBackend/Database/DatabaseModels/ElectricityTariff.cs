@@ -12,9 +12,11 @@ namespace ConsumptionManagerBackend.Database.DatabaseModels
 
         public string tariff_description { get; set; }
 
-        [ForeignKey("energy_supplier_id")]
+        //[ForeignKey("energy_supplier_id")]
         public EnergySupplier energy_supplier { get; set; }
 
         public List<TariffDetails> tariff_details { get; set;}
+
+        public List<User> tariff_users { get; set; }
     }
 }
