@@ -10,9 +10,9 @@ namespace ConsumptionManagerBackend.Database.DatabaseModels
 
         public int day_of_week_id { get; set; }
 
-        public DateTime start_time { get; set; }
+        public string start_time { get; set; }
 
-        public DateTime end_time { get; set;}
+        public string end_time { get; set; }
 
         public double price_per_kwh { get; set; }
 

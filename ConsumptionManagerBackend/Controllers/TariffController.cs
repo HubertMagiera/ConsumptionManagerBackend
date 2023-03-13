@@ -1,4 +1,5 @@
-﻿using ConsumptionManagerBackend.DtoModels.ModelsForViewing;
+﻿using ConsumptionManagerBackend.DtoModels;
+using ConsumptionManagerBackend.DtoModels.ModelsForViewing;
 using ConsumptionManagerBackend.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -26,6 +27,13 @@ namespace ConsumptionManagerBackend.Controllers
         public ActionResult<List<ElectricityTariffDto>> GetElectricityTariffsForSupplier([FromRoute] string name)
         {
             return Ok(_tariffService.GetElectricityTariffsForEnergySupplier(name));
+        }
+
+        [HttpGet]
+        [Route("tariffDetails")]
+        public ActionResult<List<ElectricityTariffWithDetailsDto>> GetTariffDetails([FromBody] ElectricityTariffModel model)
+        {
+            return Ok(_tariffService.GetDetailsForElectricityTariff(model));
         }
     }
 }
