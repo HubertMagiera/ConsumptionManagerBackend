@@ -20,6 +20,7 @@ namespace ConsumptionManagerBackend.Database
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             //specifying that entities have primary keys and indicating them
+            //defining relationships between classes
             modelBuilder.Entity<UserCredentials>(userCredentials => userCredentials.HasKey(key => key.user_credentials_id));
 
             //modelBuilder.Entity<User>()

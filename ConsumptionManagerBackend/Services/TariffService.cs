@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using ConsumptionManagerBackend.Database;
+using ConsumptionManagerBackend.Database.DatabaseModels;
 using ConsumptionManagerBackend.DtoModels.ModelsForViewing;
 using ConsumptionManagerBackend.Exceptions;
 using Microsoft.EntityFrameworkCore;
@@ -27,19 +29,22 @@ namespace ConsumptionManagerBackend.Services
                 throw new WrongInputException("Prosze podac poprawna nazwe dostawcy");
 
             //if validation is successfull, return all tariffs for energy supplier (without their details)
+            //as no tracking method disables tracking changes for list elements, it allows to boost performance (good for view only scenarios)
+            //projectTo method allows to get only those columns which are used in dto model instead of collecting all columns from db
             var tariffsForSupplier = _context.electricity_tariff
-                                      .Where(tariff => tariff.energy_supplier_id == energySupplier.energy_supplier_id)
-                                      .Include(tariff => tariff.energy_supplier)
+                                      .Where(tariff => tariff.energy_supplier_id == energySupplier.energy_supplier_id)                                      
+                                      .ProjectTo<ElectricityTariffDto>(_mapper.ConfigurationProvider)
+                                      .AsNoTracking() 
                                       .ToList();
-            var toReturn = _mapper.Map<List<ElectricityTariffDto>>(tariffsForSupplier);
-            return toReturn;
+            return tariffsForSupplier;
         }
 
         public List<EnergySupplierDto> GetEnergySuppliers()
         {
-            var suppliersFromDb = _context.energy_supplier.ToList();
-            var suppliersToReturn = _mapper.Map<List<EnergySupplierDto>>(suppliersFromDb);
-
+            var suppliersToReturn = _context.energy_supplier
+                                    .ProjectTo<EnergySupplierDto>(_mapper.ConfigurationProvider)
+                                    .AsNoTracking()
+                                    .ToList();
             return suppliersToReturn;
         }
         //TO BE ADDED - GET DETAILS FOR SPECIFIED TARIFF AND ALSO VALIDATION IN ADD USER METHOD OF USER SERVICE CLASS
