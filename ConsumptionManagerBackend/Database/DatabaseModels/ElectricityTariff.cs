@@ -12,7 +12,6 @@ namespace ConsumptionManagerBackend.Database.DatabaseModels
 
         public string tariff_description { get; set; }
 
-        //[ForeignKey("energy_supplier_id")]
         public EnergySupplier energy_supplier { get; set; }
 
         public List<TariffDetails> tariff_details { get; set;}
