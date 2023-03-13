@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace ConsumptionManagerBackend.Controllers
 {
     [ApiController]
-    [Route("consumptionManager/tariffs")]
+    [Route("consumptionManager/tariff")]
     public class TariffController:ControllerBase
     {
         private readonly ITariffService _tariffService;

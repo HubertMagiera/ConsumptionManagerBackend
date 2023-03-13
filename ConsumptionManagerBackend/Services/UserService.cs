@@ -32,13 +32,15 @@ namespace ConsumptionManagerBackend.Services
             //in case user wants to change his tariff, another method needs to be used
 
             //validate if user provided all of required data
-            if (addUser.ElectricityTariffId == null || addUser.UserCredentialsId == null ||
-                addUser.UserName == null || addUser.UserSurname == null)
+            if (string.IsNullOrEmpty(addUser.EnergySupplierName) || string.IsNullOrEmpty(addUser.ElectricityTariffName) || addUser.UserCredentialsId == null ||
+                string.IsNullOrEmpty(addUser.UserName) || string.IsNullOrEmpty(addUser.UserSurname))
                 throw new NotAllDataProvidedException("Prosze podac wszystkie wymagane dane.");
 
-            //if all data is provided, check if tariff id exists in db (TO BE ADDED)
-            //MAYBE USER SHOULD PROVIDE TARIFF NAME AND ENERGY SUPPLIER NAME INSTEAD OF ID
-
+            //if all data is provided, check if tariff for provided data exists in db
+            var electricityTariff = _context.electricity_tariff.FirstOrDefault(tariff => tariff.tariff_name.ToLower() == addUser.ElectricityTariffName.ToLower()
+                                                                                && tariff.energy_supplier.energy_supplier_name.ToLower() == addUser.EnergySupplierName.ToLower());
+            if (electricityTariff == null)
+                throw new WrongInputException("Podana taryfa nie istnieje, prosze sprawdzic poprawnosc podanych danych.");
 
             //check if provided credentials id is created
             var credentials = _context.user_credentials.FirstOrDefault(creds => creds.user_credentials_id == addUser.UserCredentialsId);
@@ -52,6 +54,7 @@ namespace ConsumptionManagerBackend.Services
 
             //if all is good, add user to db
             var userToBeAdded = _mapper.Map<User>(addUser);
+            userToBeAdded.electricity_tariff_id = electricityTariff.electricity_tariff_id;
             _context.user.Add(userToBeAdded);
             _context.SaveChanges();
 
