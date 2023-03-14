@@ -10,7 +10,7 @@
 
         public bool is_active { get; set; }
 
-        public bool device_max_power { get; set; }
+        public int device_max_power { get; set; }
 
         public Device device { get; set; }
 

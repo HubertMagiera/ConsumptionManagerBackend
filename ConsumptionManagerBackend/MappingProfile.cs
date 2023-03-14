@@ -45,6 +45,23 @@ namespace ConsumptionManagerBackend
                 .ForMember(destination => destination.TariffName, map => map.MapFrom(baseClass => baseClass.tariff_name))
                 .ForMember(destination => destination.TariffDescription, map => map.MapFrom(baseClass => baseClass.tariff_description))
                 .ForMember(destination => destination.EnergySupplierName, map => map.MapFrom(baseClass => baseClass.energy_supplier.energy_supplier_name));
+
+            CreateMap<Device, ViewDeviceDto>()
+                .ForMember(destination => destination.DeviceName, map => map.MapFrom(baseClass => baseClass.device_name))
+                .ForMember(destination => destination.CategoryName, map => map.MapFrom(baseClass => baseClass.device_category.device_category_name))
+                .ForMember(destination => destination.DeviceDescription, map => map.MapFrom(baseClass => baseClass.device_description));
+
+            CreateMap<DeviceDetails,ViewUserDeviceDetailsDto>()
+                .ForMember(destination => destination.DeviceModeNumber,map => map.MapFrom(baseClass => baseClass.device_mode_number))
+                .ForMember(destination => destination.PowerInMode,map =>map.MapFrom(baseClass => baseClass.device_power_in_mode))
+                .ForMember(destination => destination.ModeDescription, map=> map.MapFrom(baseClass => baseClass.device_mode_description));
+
+            CreateMap<UserDevice, ViewUserDeviceDto>()
+                .ForMember(destination => destination.DeviceMaxPower, map => map.MapFrom(baseClass => baseClass.device_max_power))
+                .ForMember(destination => destination.DeviceName, map => map.MapFrom(baseClass => baseClass.device.device_name))
+                .ForMember(destination => destination.DeviceCategory, map => map.MapFrom(baseClass => baseClass.device.device_category.device_category_name))
+                .ForMember(destination => destination.IsActive, map => map.MapFrom(baseClass => baseClass.is_active))
+                .ForMember(destination => destination.Details, map => map.MapFrom(baseClass => baseClass.details));
         }
 
 
