@@ -16,6 +16,9 @@ namespace ConsumptionManagerBackend.Database
         public DbSet<DatabaseModels.DayOfWeek> day_of_week { get; set; }
         public DbSet<TariffDetails> tariff_details { get; set; }
         public DbSet<EnergySupplier> energy_supplier { get; set; }
+        public DbSet<DeviceDetails>device_details { get; set; }
+        public DbSet<Device> device { get; set; }
+        public DbSet<DeviceCategory>device_category { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -105,6 +108,49 @@ namespace ConsumptionManagerBackend.Database
                 es.Property(prop => prop.energy_supplier_name).IsRequired();
 
                 es.Property(prop => prop.energy_supplier_name).HasMaxLength(30);
+            });
+
+            modelBuilder.Entity<DeviceCategory>(dc =>
+            {
+                dc.HasKey(key => key.device_category_id);
+
+                dc.Property(property => property.device_category_id).IsRequired();
+                dc.Property(property => property.device_category_name).IsRequired();
+
+                dc.Property(property => property.device_category_name).HasMaxLength(50);
+            });
+
+            modelBuilder.Entity<DeviceDetails>(dd =>
+            {
+                dd.HasKey(key => key.device_details_id);
+
+                dd.Property(property => property.device_details_id).IsRequired();
+                dd.Property(property => property.device_id).IsRequired();
+                dd.Property(property => property.device_mode_number).IsRequired();
+                dd.Property(property => property.device_power_in_mode).IsRequired();
+
+                dd.Property(property => property.device_details_id).HasMaxLength(50);
+
+                dd.HasOne(property => property.device)
+                   .WithMany(device => device.device_details)
+                   .HasForeignKey(property => property.device_id);
+            });
+
+            modelBuilder.Entity<Device>(dev =>
+            {
+                dev.HasKey(key => key.device_id);
+
+                dev.Property(property => property.device_id).IsRequired();
+                dev.Property(property => property.device_name).IsRequired();
+                dev.Property(property => property.device_max_power).IsRequired();
+                dev.Property(property => property.device_category_id).IsRequired();
+
+                dev.Property(property => property.device_name).HasMaxLength(100);
+                dev.Property(property => property.device_description).HasMaxLength(1000);
+
+                dev.HasOne(property => property.device_category)
+                    .WithMany(category => category.devices_for_category)
+                    .HasForeignKey(property => property.device_category_id);
             });
         }
     }
