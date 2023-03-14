@@ -47,6 +47,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IUserService,UserService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<ITariffService, TariffService>();
+builder.Services.AddScoped<IDeviceService,DeviceService>();
 //add automapper
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 //add password hasher
