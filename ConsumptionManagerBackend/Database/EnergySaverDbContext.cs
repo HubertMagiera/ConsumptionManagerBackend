@@ -19,6 +19,7 @@ namespace ConsumptionManagerBackend.Database
         public DbSet<DeviceDetails>device_details { get; set; }
         public DbSet<Device> device { get; set; }
         public DbSet<DeviceCategory>device_category { get; set; }
+        public DbSet<UserDevice>user_device { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -151,6 +152,24 @@ namespace ConsumptionManagerBackend.Database
                 dev.HasOne(property => property.device_category)
                     .WithMany(category => category.devices_for_category)
                     .HasForeignKey(property => property.device_category_id);
+            });
+
+            modelBuilder.Entity<UserDevice>(ud =>
+            {
+                ud.HasKey(key => key.user_device_id);
+
+                ud.Property(property => property.user_device_id).IsRequired();
+                ud.Property(property => property.device_id).IsRequired();
+                ud.Property(property => property.is_active).IsRequired();
+                ud.Property(property => property.user_id).IsRequired();
+
+                ud.HasOne(property => property.user)
+                    .WithMany(usr => usr.user_devices)
+                    .HasForeignKey(property => property.user_id);
+
+                ud.HasOne(property => property.device)
+                    .WithMany(device => device.user_devices)
+                    .HasForeignKey(property => property.device_id);
             });
         }
     }
