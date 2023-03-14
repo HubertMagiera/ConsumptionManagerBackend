@@ -5,7 +5,7 @@ namespace ConsumptionManagerBackend.Services
 {
     public interface IDeviceService
     {
-        List<string> GetCategories();
+        List<DeviceCategoryDto> GetCategories();
 
         List<ViewDeviceDto> GetDevices();
 
@@ -13,6 +13,6 @@ namespace ConsumptionManagerBackend.Services
 
         ViewUserDeviceDto GetUserDevice(SearchForUserDeviceDto deviceToFind);
 
-
+        List<ViewDeviceDto> GetDevicesForCategory(string category);
     }
 }

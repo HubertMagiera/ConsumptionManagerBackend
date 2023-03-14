@@ -62,6 +62,9 @@ namespace ConsumptionManagerBackend
                 .ForMember(destination => destination.DeviceCategory, map => map.MapFrom(baseClass => baseClass.device.device_category.device_category_name))
                 .ForMember(destination => destination.IsActive, map => map.MapFrom(baseClass => baseClass.is_active))
                 .ForMember(destination => destination.Details, map => map.MapFrom(baseClass => baseClass.details));
+
+            CreateMap<DeviceCategory,DeviceCategoryDto>()
+                .ForMember(destination => destination.CategoryName, map => map.MapFrom(baseClass => baseClass.device_category_name));
         }
 
 
