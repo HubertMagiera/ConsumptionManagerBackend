@@ -46,7 +46,6 @@ namespace ConsumptionManagerBackend.Services
         {
             var suppliersToReturn = _context.energy_supplier
                                     .ProjectTo<EnergySupplierDto>(_mapper.ConfigurationProvider)
-                                    .AsNoTracking()
                                     .ToList();
             return suppliersToReturn;
         }
@@ -58,10 +57,16 @@ namespace ConsumptionManagerBackend.Services
             //validation if both reqiured fields are provided
             if (string.IsNullOrEmpty(tariff.ElectricityTariffName) || string.IsNullOrEmpty(tariff.EnergySupplierName))
                 throw new WrongInputException("Prosze podac nazwe taryfy oraz nazwe dostawcy pradu.");
-            //dokonczyc
+
+            //select tariff details for provided data
             var tariffDetails = _context.electricity_tariff
+                                .Where(property => property.energy_supplier.energy_supplier_name.ToLower() == tariff.EnergySupplierName.ToLower() 
+                                        && property.tariff_name.ToLower() == tariff.ElectricityTariffName.ToLower())
                                 .ProjectTo<ElectricityTariffWithDetailsDto>(_mapper.ConfigurationProvider)
                                 .ToList();
+            //if list is null it means that input is not correct, so throw an error with appropriate message
+            if (!tariffDetails.Any())
+                throw new WrongInputException("Nie znaleziono zadnych danych dla podanych wartosci. Prosze sprawdzic poprawnosc wprowadzonych danych");
 
             return tariffDetails;
         }
