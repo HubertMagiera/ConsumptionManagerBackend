@@ -4,7 +4,7 @@
     {
         public int device_details_id { get; set; }
 
-        public int device_id { get; set; }
+        public int user_device_id { get; set; }
 
         public int device_mode_number { get; set; }
 
@@ -12,6 +12,6 @@
 
         public string device_mode_description { get; set; }
 
-        public Device device { get; set; }
+        public UserDevice user_device { get; set; }
     }
 }

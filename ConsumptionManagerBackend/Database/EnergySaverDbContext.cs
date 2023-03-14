@@ -126,15 +126,15 @@ namespace ConsumptionManagerBackend.Database
                 dd.HasKey(key => key.device_details_id);
 
                 dd.Property(property => property.device_details_id).IsRequired();
-                dd.Property(property => property.device_id).IsRequired();
+                dd.Property(property => property.user_device_id).IsRequired();
                 dd.Property(property => property.device_mode_number).IsRequired();
                 dd.Property(property => property.device_power_in_mode).IsRequired();
 
                 dd.Property(property => property.device_details_id).HasMaxLength(50);
 
-                dd.HasOne(property => property.device)
-                   .WithMany(device => device.device_details)
-                   .HasForeignKey(property => property.device_id);
+                dd.HasOne(property => property.user_device)
+                    .WithMany(device => device.details)
+                    .HasForeignKey(property => property.user_device_id);
             });
 
             modelBuilder.Entity<Device>(dev =>
@@ -143,7 +143,6 @@ namespace ConsumptionManagerBackend.Database
 
                 dev.Property(property => property.device_id).IsRequired();
                 dev.Property(property => property.device_name).IsRequired();
-                dev.Property(property => property.device_max_power).IsRequired();
                 dev.Property(property => property.device_category_id).IsRequired();
 
                 dev.Property(property => property.device_name).HasMaxLength(100);
@@ -162,6 +161,7 @@ namespace ConsumptionManagerBackend.Database
                 ud.Property(property => property.device_id).IsRequired();
                 ud.Property(property => property.is_active).IsRequired();
                 ud.Property(property => property.user_id).IsRequired();
+                ud.Property(property => property.device_max_power).IsRequired();
 
                 ud.HasOne(property => property.user)
                     .WithMany(usr => usr.user_devices)
