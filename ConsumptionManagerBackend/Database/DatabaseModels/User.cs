@@ -12,5 +12,7 @@
 
         public ElectricityTariff electricity_tariff { get; set; }
 
+        public List<UserDevice>user_devices { get; set; }
+
     }
 }

@@ -15,5 +15,7 @@
         public DeviceCategory device_category { get; set; }
 
         public List<DeviceDetails> device_details { get; set; }
+
+        public List<UserDevice> user_devices { get; set; }
     }
 }
