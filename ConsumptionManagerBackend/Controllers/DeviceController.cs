@@ -1,4 +1,5 @@
-﻿using ConsumptionManagerBackend.DtoModels.ModelsForViewing;
+﻿using ConsumptionManagerBackend.DtoModels.ModelsForSearching;
+using ConsumptionManagerBackend.DtoModels.ModelsForViewing;
 using ConsumptionManagerBackend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -38,5 +39,20 @@ namespace ConsumptionManagerBackend.Controllers
         {
             return Ok(_deviceService.GetDevicesForCategory(category));
         }
+        [HttpGet]
+        [Route("myDevices")]
+        [Authorize]
+        public ActionResult<List<ViewDeviceDto>> GetUserDevices()
+        {
+            return Ok(_deviceService.GetUserDevices());
+        }
+        [HttpGet]
+        [Route("myDevice")]
+        [Authorize]
+        public ActionResult<ViewDeviceDto> GetUserDevice([FromBody] SearchForUserDeviceDto deviceToFind)
+        {
+            return Ok(_deviceService.GetUserDevice(deviceToFind));
+        }
+
     }
 }

@@ -48,6 +48,7 @@ builder.Services.AddScoped<IUserService,UserService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<ITariffService, TariffService>();
 builder.Services.AddScoped<IDeviceService,DeviceService>();
+builder.Services.AddHttpContextAccessor();
 //add automapper
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 //add password hasher
