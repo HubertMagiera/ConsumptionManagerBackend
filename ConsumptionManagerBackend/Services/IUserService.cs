@@ -1,6 +1,7 @@
 ﻿using ConsumptionManagerBackend.DtoModels;
 using ConsumptionManagerBackend.DtoModels.ModelsForAdding;
 using ConsumptionManagerBackend.DtoModels.ModelsForUpdates;
+using System.Security.Claims;
 
 namespace ConsumptionManagerBackend.Services
 {
@@ -14,5 +15,9 @@ namespace ConsumptionManagerBackend.Services
         void ChangePassword(ChangePasswordDto credentials);
 
         TokenModel RefreshSession(TokenModel model);
+
+        int GetUserID();
+
+        ClaimsPrincipal GetUser();
     }
 }

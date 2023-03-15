@@ -17,13 +17,15 @@ namespace ConsumptionManagerBackend.Services
         private readonly IPasswordHasher<UserCredentials> _passwordHasher;
         private readonly IMapper _mapper;
         private readonly ITokenService _tokenService;
+        private readonly IHttpContextAccessor _contextAccessor;
 
-        public UserService(EnergySaverDbContext context,IPasswordHasher<UserCredentials> passwordHasher,IMapper mapper, ITokenService tokenService)
+        public UserService(EnergySaverDbContext context,IPasswordHasher<UserCredentials> passwordHasher, IMapper mapper, ITokenService tokenService, IHttpContextAccessor contextAccessor)
         {
             _context = context;
             _passwordHasher = passwordHasher;
             _mapper = mapper;
             _tokenService = tokenService;
+            _contextAccessor = contextAccessor;
         }
         public TokenModel AddUserData(AddUserDto addUser)
         {
@@ -163,6 +165,16 @@ namespace ConsumptionManagerBackend.Services
                 RefreshToken = refreshToken
         };
 
+        }
+
+        public int GetUserID()
+        {
+            return Convert.ToInt32(_contextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier));
+        }
+
+        public ClaimsPrincipal GetUser()
+        {
+            return _contextAccessor.HttpContext.User;
         }
 
         private bool validatePasswordMeetsRules(string password)
