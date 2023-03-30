@@ -1,4 +1,5 @@
-﻿using ConsumptionManagerBackend.DtoModels.ModelsForAdding;
+﻿using ConsumptionManagerBackend.Database.DatabaseModels;
+using ConsumptionManagerBackend.DtoModels.ModelsForAdding;
 using ConsumptionManagerBackend.DtoModels.ModelsForSearching;
 using ConsumptionManagerBackend.DtoModels.ModelsForViewing;
 
@@ -17,5 +18,8 @@ namespace ConsumptionManagerBackend.Services.Interfaces
         List<ViewDeviceDto> GetDevicesForCategory(string category);
 
         void AddUserDevice(AddUserDeviceDto deviceToAdd);
+
+        void ChangeUserDeviceStatus(SearchForUserDeviceDto deviceToFind);
+
     }
 }

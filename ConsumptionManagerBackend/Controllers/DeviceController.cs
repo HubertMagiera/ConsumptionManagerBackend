@@ -26,7 +26,7 @@ namespace ConsumptionManagerBackend.Controllers
         }
 
         [HttpGet]
-        [Route("")]
+        [Route("all")]
         //[Authorize]
         public ActionResult<List<ViewDeviceDto>>GetAllDevices()
         {
@@ -64,7 +64,20 @@ namespace ConsumptionManagerBackend.Controllers
             return new ObjectResult(null)
             {
                 StatusCode = StatusCodes.Status201Created
-        };
+            };
+        }
+
+        [HttpPut]
+        [Route("myDevices/changeStatus")]
+        [Authorize]
+        public ActionResult ChangeUserDeviceStatus([FromBody] SearchForUserDeviceDto deviceToUpdate)
+        {
+            _deviceService.ChangeUserDeviceStatus(deviceToUpdate);
+            return new ObjectResult(null)
+            {
+                StatusCode = StatusCodes.Status200OK,
+                Value = "Status urzadzenia zostal zmieniony"
+            };
         }
     }
 }

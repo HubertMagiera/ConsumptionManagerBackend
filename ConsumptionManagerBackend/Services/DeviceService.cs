@@ -8,6 +8,7 @@ using ConsumptionManagerBackend.DtoModels.ModelsForViewing;
 using ConsumptionManagerBackend.Exceptions;
 using ConsumptionManagerBackend.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
 
 namespace ConsumptionManagerBackend.Services
 {
@@ -36,49 +37,45 @@ namespace ConsumptionManagerBackend.Services
 
         public List<ViewDeviceDto> GetDevices()
         {
-            var devices = _context.device
-                                    .ProjectTo<ViewDeviceDto>(_mapper.ConfigurationProvider)
-                                    .ToList();
+            var devices = GetDevicesFromDB();
             if (devices.Count == 0)
                 throw new NoElementFoundException("Nie znaleziono zadnych elementow.");
 
-            return devices;
+            return _mapper.Map<List<ViewDeviceDto>>(devices);
         }
 
         public List<ViewDeviceDto> GetDevicesForCategory(string category)
         {
             if (string.IsNullOrEmpty(category))
                 throw new WrongInputException("Prosze podac nazwe kategorii.");
-            var devices = GetDevices()
-                          .Where(property => property.CategoryName.ToLower() == category.ToLower())
+            var devices = GetDevicesFromDB()
+                          .Where(property => property.device_category.device_category_name.ToLower() == category.ToLower())
                           .ToList();
             if (devices.Count == 0)
                 throw new NoElementFoundException("Nie znaleziono zadnych elementow.");
 
-            return devices;
+            return _mapper.Map<List<ViewDeviceDto>>(devices);
         }
 
         public ViewUserDeviceDto GetUserDevice(SearchForUserDeviceDto deviceToFind)
         {
             if (string.IsNullOrEmpty(deviceToFind.DeviceName) || string.IsNullOrEmpty(deviceToFind.DeviceCategory))
                 throw new NotAllDataProvidedException("Prosze podac nazwe urzadzenia i kategorii.");
-            var device = GetUserDevices().FirstOrDefault(property => property.DeviceName.ToLower() == deviceToFind.DeviceName.ToLower() &&
-                                                                    property.DeviceCategory.ToLower() == deviceToFind.DeviceCategory.ToLower());
+
+            var device = GetUserDevicesFromDB().FirstOrDefault(property => property.device.device_name.ToLower() == deviceToFind.DeviceName.ToLower() &&
+                                                                    property.device.device_category.device_category_name.ToLower() == deviceToFind.DeviceCategory.ToLower());
             if (device == null)
                 throw new NoElementFoundException("Nie znaleziono zadnego urzadzenia dla podanych danych");
-            return device;
+            return _mapper.Map<ViewUserDeviceDto>(device);
                                     
         }
 
         public List<ViewUserDeviceDto> GetUserDevices()
         {
-            var devices = _context.user_device
-                                    .Where(property => property.user_id == _userService.GetUserID())
-                                    .ProjectTo<ViewUserDeviceDto>(_mapper.ConfigurationProvider)
-                                    .ToList();
+            var devices = GetUserDevicesFromDB();
             if (devices.Count == 0)
                 throw new NoElementFoundException("Nie znaleziono zadnych elementow");
-            return devices;
+            return _mapper.Map<List<ViewUserDeviceDto>>(devices);
         }
 
         public void AddUserDevice(AddUserDeviceDto deviceToAdd)
@@ -104,15 +101,13 @@ namespace ConsumptionManagerBackend.Services
             int categoryID = category.device_category_id;
 
             //if not, get device id and add new user device to user account
-            var device = _context.device
-                                 .FirstOrDefault(property => property.device_name.ToLower() == deviceToAdd.DeviceName.ToLower() && property.device_category_id == categoryID);
+            var device = GetDevicesFromDB().FirstOrDefault(property => property.device_name.ToLower() == deviceToAdd.DeviceName.ToLower() && property.device_category_id == categoryID);
             if (device == null)
                 throw new NoElementFoundException("Nie znaleziono urzadzenia o podanych parametrach.");
             int deviceID = device.device_id;
 
             //check if user already owns device with the same name and category
-            var deviceWithTheSameData = _context.user_device
-                                   .FirstOrDefault(property => property.user_id == userID && property.device_id == deviceID);
+            var deviceWithTheSameData =GetUserDevicesFromDB().FirstOrDefault(property => property.user_id == userID && property.device_id == deviceID);
             //if yes, return appropriate error message
             if(deviceWithTheSameData != null)
             {
@@ -134,5 +129,44 @@ namespace ConsumptionManagerBackend.Services
             _context.SaveChanges();
             
         }
+
+        public void ChangeUserDeviceStatus(SearchForUserDeviceDto deviceToFind)
+        {
+            //method used to change user device status from active to inactive and the other way around
+            
+            //check if user provided all required data
+            if (string.IsNullOrEmpty(deviceToFind.DeviceName) || string.IsNullOrEmpty(deviceToFind.DeviceCategory))
+                throw new NotAllDataProvidedException("Podaj nazwe oraz kategorie urzadzenia, ktorego status chcesz zmienic.");
+
+            //if yes, check if user device for provided details exists
+            var userDevice = GetUserDevicesFromDB().FirstOrDefault(property => property.device.device_name.ToLower() == deviceToFind.DeviceName.ToLower() &&
+                                                                   property.device.device_category.device_category_name.ToLower() == deviceToFind.DeviceCategory.ToLower());
+            //if no, throw an error
+            if (userDevice == null)
+                throw new NoElementFoundException("Nie znaleziono urzadzenia dla podanych wartosci.");
+            //if yes, change its status
+            userDevice.is_active = !userDevice.is_active;
+            _context.SaveChanges();
+        }
+
+        private List<Device>GetDevicesFromDB()
+        {
+            var devices = _context.device.Include(device => device.device_category).ToList();
+            return devices;
+        }
+
+        private List<UserDevice>GetUserDevicesFromDB()
+        {
+            var userDevices = _context.user_device
+                                        .Where(property => property.user_id == _userService.GetUserID())
+                                        .Include(userDev => userDev.device)
+                                        .Include(userDev => userDev.device.device_category)
+                                        .ToList();
+            return userDevices;
+
+        }
+
+
+
     }
 }
