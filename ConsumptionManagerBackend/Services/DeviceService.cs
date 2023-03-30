@@ -62,17 +62,11 @@ namespace ConsumptionManagerBackend.Services
         {
             if (string.IsNullOrEmpty(deviceToFind.DeviceName) || string.IsNullOrEmpty(deviceToFind.DeviceCategory))
                 throw new NotAllDataProvidedException("Prosze podac nazwe urzadzenia i kategorii.");
-            var device = _context.user_device
-                                    .Include(property => property.details)
-                                    .Include(property => property.device)
-                                    .Include(property => property.user)
-                                    .Include(property => property.device.device_category)
-                                    .FirstOrDefault(property => property.device.device_name == deviceToFind.DeviceName
-                                        && property.device.device_category.device_category_name == deviceToFind.DeviceCategory
-                                        && property.user_id == _userService.GetUserID());
+            var device = GetUserDevices().FirstOrDefault(property => property.DeviceName.ToLower() == deviceToFind.DeviceName.ToLower() &&
+                                                                    property.DeviceCategory.ToLower() == deviceToFind.DeviceCategory.ToLower());
             if (device == null)
                 throw new NoElementFoundException("Nie znaleziono zadnego urzadzenia dla podanych danych");
-            return _mapper.Map<ViewUserDeviceDto>(device);
+            return device;
                                     
         }
 
