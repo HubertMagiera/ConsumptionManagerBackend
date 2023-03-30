@@ -1,4 +1,5 @@
-﻿using ConsumptionManagerBackend.DtoModels.ModelsForSearching;
+﻿using ConsumptionManagerBackend.DtoModels.ModelsForAdding;
+using ConsumptionManagerBackend.DtoModels.ModelsForSearching;
 using ConsumptionManagerBackend.DtoModels.ModelsForViewing;
 using ConsumptionManagerBackend.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -54,5 +55,16 @@ namespace ConsumptionManagerBackend.Controllers
             return Ok(_deviceService.GetUserDevice(deviceToFind));
         }
 
+        [HttpPost]
+        [Route("myDevices/addNew")]
+        [Authorize]
+        public ActionResult AddNewUserDevice([FromBody] AddUserDeviceDto deviceToBeAdded)
+        {
+            _deviceService.AddUserDevice(deviceToBeAdded);
+            return new ObjectResult(null)
+            {
+                StatusCode = StatusCodes.Status201Created
+        };
+        }
     }
 }

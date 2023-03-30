@@ -65,6 +65,7 @@ namespace ConsumptionManagerBackend
 
             CreateMap<DeviceCategory,DeviceCategoryDto>()
                 .ForMember(destination => destination.CategoryName, map => map.MapFrom(baseClass => baseClass.device_category_name));
+
         }
 
 
