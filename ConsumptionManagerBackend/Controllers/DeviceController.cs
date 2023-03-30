@@ -1,6 +1,6 @@
 ﻿using ConsumptionManagerBackend.DtoModels.ModelsForSearching;
 using ConsumptionManagerBackend.DtoModels.ModelsForViewing;
-using ConsumptionManagerBackend.Services;
+using ConsumptionManagerBackend.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -25,7 +25,7 @@ namespace ConsumptionManagerBackend.Controllers
         }
 
         [HttpGet]
-        [Route("devices")]
+        [Route("")]
         //[Authorize]
         public ActionResult<List<ViewDeviceDto>>GetAllDevices()
         {
@@ -33,7 +33,7 @@ namespace ConsumptionManagerBackend.Controllers
         }
 
         [HttpGet]
-        [Route("devices/{category}")]
+        [Route("{category}")]
         //[Authorize]
         public ActionResult<List<ViewDeviceDto>> GetDevicesForCategory([FromRoute] string category)
         {

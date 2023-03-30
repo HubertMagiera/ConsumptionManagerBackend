@@ -4,6 +4,7 @@ using ConsumptionManagerBackend.Database;
 using ConsumptionManagerBackend.DtoModels.ModelsForSearching;
 using ConsumptionManagerBackend.DtoModels.ModelsForViewing;
 using ConsumptionManagerBackend.Exceptions;
+using ConsumptionManagerBackend.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace ConsumptionManagerBackend.Services
@@ -46,10 +47,9 @@ namespace ConsumptionManagerBackend.Services
         {
             if (string.IsNullOrEmpty(category))
                 throw new WrongInputException("Prosze podac nazwe kategorii.");
-            var devices = _context.device
-                                    .Where(property => property.device_category.device_category_name.ToLower() == category.ToLower())
-                                    .ProjectTo<ViewDeviceDto>(_mapper.ConfigurationProvider)
-                                    .ToList();
+            var devices = GetDevices()
+                          .Where(property => property.CategoryName.ToLower() == category.ToLower())
+                          .ToList();
             if (devices.Count == 0)
                 throw new NoElementFoundException("Nie znaleziono zadnych elementow.");
 

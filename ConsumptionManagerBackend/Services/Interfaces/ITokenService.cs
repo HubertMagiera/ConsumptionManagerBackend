@@ -2,7 +2,7 @@
 using ConsumptionManagerBackend.DtoModels;
 using System.Security.Claims;
 
-namespace ConsumptionManagerBackend.Services
+namespace ConsumptionManagerBackend.Services.Interfaces
 {
     public interface ITokenService
     {

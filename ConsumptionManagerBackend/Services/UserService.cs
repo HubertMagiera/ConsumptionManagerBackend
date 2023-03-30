@@ -5,6 +5,7 @@ using ConsumptionManagerBackend.DtoModels;
 using ConsumptionManagerBackend.DtoModels.ModelsForAdding;
 using ConsumptionManagerBackend.DtoModels.ModelsForUpdates;
 using ConsumptionManagerBackend.Exceptions;
+using ConsumptionManagerBackend.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 using System.Text.RegularExpressions;

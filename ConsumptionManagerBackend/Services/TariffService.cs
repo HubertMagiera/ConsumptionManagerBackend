@@ -5,6 +5,7 @@ using ConsumptionManagerBackend.Database.DatabaseModels;
 using ConsumptionManagerBackend.DtoModels;
 using ConsumptionManagerBackend.DtoModels.ModelsForViewing;
 using ConsumptionManagerBackend.Exceptions;
+using ConsumptionManagerBackend.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 

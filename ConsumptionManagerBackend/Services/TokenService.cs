@@ -1,6 +1,7 @@
 ﻿using ConsumptionManagerBackend.Database;
 using ConsumptionManagerBackend.Database.DatabaseModels;
 using ConsumptionManagerBackend.DtoModels;
+using ConsumptionManagerBackend.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;

@@ -1,6 +1,6 @@
 ﻿using ConsumptionManagerBackend.DtoModels;
 using ConsumptionManagerBackend.DtoModels.ModelsForViewing;
-using ConsumptionManagerBackend.Services;
+using ConsumptionManagerBackend.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ConsumptionManagerBackend.Controllers

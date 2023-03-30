@@ -11,6 +11,7 @@ using ConsumptionManagerBackend;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using ConsumptionManagerBackend.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 

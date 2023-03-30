@@ -3,7 +3,7 @@ using ConsumptionManagerBackend.DtoModels.ModelsForAdding;
 using ConsumptionManagerBackend.DtoModels.ModelsForUpdates;
 using System.Security.Claims;
 
-namespace ConsumptionManagerBackend.Services
+namespace ConsumptionManagerBackend.Services.Interfaces
 {
     public interface IUserService
     {

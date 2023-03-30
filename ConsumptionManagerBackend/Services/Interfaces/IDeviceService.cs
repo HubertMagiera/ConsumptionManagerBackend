@@ -1,7 +1,7 @@
 ﻿using ConsumptionManagerBackend.DtoModels.ModelsForSearching;
 using ConsumptionManagerBackend.DtoModels.ModelsForViewing;
 
-namespace ConsumptionManagerBackend.Services
+namespace ConsumptionManagerBackend.Services.Interfaces
 {
     public interface IDeviceService
     {
