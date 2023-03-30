@@ -1,5 +1,6 @@
 ﻿using ConsumptionManagerBackend.DtoModels.ModelsForAdding;
 using ConsumptionManagerBackend.DtoModels.ModelsForSearching;
+using ConsumptionManagerBackend.DtoModels.ModelsForUpdates;
 using ConsumptionManagerBackend.DtoModels.ModelsForViewing;
 using ConsumptionManagerBackend.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -63,7 +64,8 @@ namespace ConsumptionManagerBackend.Controllers
             _deviceService.AddUserDevice(deviceToBeAdded);
             return new ObjectResult(null)
             {
-                StatusCode = StatusCodes.Status201Created
+                StatusCode = StatusCodes.Status201Created,
+                Value = "Dodano nowe urzadzenie"
             };
         }
 
@@ -78,6 +80,27 @@ namespace ConsumptionManagerBackend.Controllers
                 StatusCode = StatusCodes.Status200OK,
                 Value = "Status urzadzenia zostal zmieniony"
             };
+        }
+
+        [HttpPost]
+        [Route("myDevice/addDeviceDetails")]
+        [Authorize]
+        public ActionResult AddDeviceDetails([FromBody] AddUserDeviceDetailsDto details)
+        {
+            _deviceService.AddDetailsToUserDevice(details);
+            return new ObjectResult(null)
+            {
+                StatusCode = StatusCodes.Status201Created,
+                Value = "Dodano nowy tryb pracy dla tego urzadzenia"
+            };
+        }
+
+        [HttpDelete]
+        [Route("myDevice/deleteDeviceDetails")]
+        [Authorize]
+        public ActionResult DeleteDeviceDetails([FromBody] DeleteDeviceDetailsDto detailsToDelete)
+        {
+            throw new NotImplementedException();
         }
     }
 }

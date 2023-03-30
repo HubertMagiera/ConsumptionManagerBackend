@@ -1,6 +1,6 @@
 ﻿namespace ConsumptionManagerBackend.DtoModels.ModelsForUpdates
 {
-    public class DisableUserDeviceDto
+    public class DeleteDeviceDetailsDto
     {
     }
 }

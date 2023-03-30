@@ -149,6 +149,42 @@ namespace ConsumptionManagerBackend.Services
             _context.SaveChanges();
         }
 
+        public void AddDetailsToUserDevice(AddUserDeviceDetailsDto details)
+        {
+            //method used to add device details to user device
+
+            //check if user provided all required details
+            if (string.IsNullOrEmpty(details.DeviceName) || string.IsNullOrEmpty(details.DeviceCategory) || details.DevicePowerInMode == 0)
+                throw new NotAllDataProvidedException("Prosze podac wszystkie wymagane dane.");
+
+            //if all data provided, check if user owns device with the same name and category as provided
+            var device = GetUserDevicesFromDB().FirstOrDefault(property => property.device.device_name.ToLower() == details.DeviceName.ToLower() &&
+                                                                property.device.device_category.device_category_name.ToLower() == details.DeviceCategory.ToLower());
+            if (device == null)
+                throw new NoElementFoundException("Nie znaleziono urzadzenia dla podanych danych.");
+
+            //if user device exists, check if provided power amount is not greater than max power allowed for this device
+            if (details.DevicePowerInMode > device.device_max_power)
+                throw new WrongInputException("Podano wieksza moc niz maksymalna przewidziana dla urzadzenia. Prosze podac inne dane.");
+
+            //check if power mode with the same power amount already exists for this device
+            var modeWithTheSamePowerAmount = device.details.FirstOrDefault(property => property.device_power_in_mode == details.DevicePowerInMode);
+            if (modeWithTheSamePowerAmount != null)
+                throw new WrongInputException("Urzadzenie posiada juz przypisany tryb pracy z taka sama moca.");
+
+            //get maximum number of mode and assign one greater
+            var modeNumber = device.details.Max(property => property.device_mode_number) +1;
+
+            //create details that will be added to database
+            DeviceDetails detailsToBeAdded = _mapper.Map<DeviceDetails>(details);
+            detailsToBeAdded.device_mode_number = modeNumber;
+            detailsToBeAdded.user_device_id = device.user_device_id;
+
+            //save it to db
+            _context.device_details.Add(detailsToBeAdded);
+            _context.SaveChanges();
+        }
+
         private List<Device>GetDevicesFromDB()
         {
             var devices = _context.device.Include(device => device.device_category).ToList();
@@ -161,6 +197,7 @@ namespace ConsumptionManagerBackend.Services
                                         .Where(property => property.user_id == _userService.GetUserID())
                                         .Include(userDev => userDev.device)
                                         .Include(userDev => userDev.device.device_category)
+                                        .Include(userDev =>userDev.details)
                                         .ToList();
             return userDevices;
 
