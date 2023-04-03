@@ -12,6 +12,8 @@ namespace ConsumptionManagerBackend.Services.Interfaces
 
         TokenModel AddUserData(AddUserDto addUser);
 
+        void ChangeTariff(ChangeSupplierAndTariffDto tariff);
+
         void ChangePassword(ChangePasswordDto credentials);
 
         TokenModel RefreshSession(TokenModel model);

@@ -61,5 +61,18 @@ namespace ConsumptionManagerBackend.Controllers
         {
             return Ok(_userService.AddUserData(addUser));
         }
+
+        [HttpPut]
+        [Route("changeTariff")]
+        [Authorize]
+        public ActionResult ChangeTariff([FromBody] ChangeSupplierAndTariffDto tariff)
+        {
+            _userService.ChangeTariff(tariff);
+            return new ObjectResult(null)
+            {
+                StatusCode = StatusCodes.Status200OK,
+                Value = "Informacje o taryfie zostaly zmienione."
+            };
+        }
     }
 }

@@ -20,7 +20,7 @@ namespace ConsumptionManagerBackend.Services
         private readonly ITokenService _tokenService;
         private readonly IHttpContextAccessor _contextAccessor;
 
-        public UserService(EnergySaverDbContext context,IPasswordHasher<UserCredentials> passwordHasher, IMapper mapper, ITokenService tokenService, IHttpContextAccessor contextAccessor)
+        public UserService(EnergySaverDbContext context, IPasswordHasher<UserCredentials> passwordHasher, IMapper mapper, ITokenService tokenService, IHttpContextAccessor contextAccessor)
         {
             _context = context;
             _passwordHasher = passwordHasher;
@@ -35,7 +35,7 @@ namespace ConsumptionManagerBackend.Services
             //in case user wants to change his tariff, another method needs to be used
 
             //validate if user provided all of required data
-            if (string.IsNullOrEmpty(addUser.EnergySupplierName) || string.IsNullOrEmpty(addUser.ElectricityTariffName) || addUser.UserCredentialsId == null ||
+            if (string.IsNullOrEmpty(addUser.EnergySupplierName) || string.IsNullOrEmpty(addUser.ElectricityTariffName) || addUser.UserCredentialsId == 0 ||
                 string.IsNullOrEmpty(addUser.UserName) || string.IsNullOrEmpty(addUser.UserSurname))
                 throw new NotAllDataProvidedException("Prosze podac wszystkie wymagane dane.");
 
@@ -80,7 +80,7 @@ namespace ConsumptionManagerBackend.Services
 
             //check if provided password is the same as the one in db
             var validationResult = _passwordHasher.VerifyHashedPassword(creds, creds.user_password, userCredentials.UserPassword);
-            if(validationResult != PasswordVerificationResult.Success)
+            if (validationResult != PasswordVerificationResult.Success)
                 throw new WrongCredentialsException("Prosze sprawdzic poprawnosc podanych danych logowania.");
 
             //if provided credentials are ok, login user by creating tokens
@@ -90,10 +90,10 @@ namespace ConsumptionManagerBackend.Services
             creds.refresh_token = refreshToken;//replace old refresh token with a new one
             _context.SaveChanges();
 
-            return new TokenModel 
-            { 
-                AccessToken = accessToken, 
-                RefreshToken = refreshToken 
+            return new TokenModel
+            {
+                AccessToken = accessToken,
+                RefreshToken = refreshToken
             };
         }
 
@@ -113,15 +113,41 @@ namespace ConsumptionManagerBackend.Services
 
 
             var credentialsToBeAdded = _mapper.Map<UserCredentials>(userCredentials);
-            credentialsToBeAdded.user_password = _passwordHasher.HashPassword(credentialsToBeAdded,userCredentials.UserPassword);
+            credentialsToBeAdded.user_password = _passwordHasher.HashPassword(credentialsToBeAdded, userCredentials.UserPassword);
             credentialsToBeAdded.refresh_token = _tokenService.CreateRefreshToken();
 
             _context.Add(credentialsToBeAdded);
             _context.SaveChanges();
 
             return credentialsToBeAdded.user_credentials_id;
-            
+
         }
+
+        public void ChangeTariff(ChangeSupplierAndTariffDto tariff)
+        {
+            //method used to update info about energy supplier and tariff assigned to user account
+
+            //check if all data is provided
+            if (string.IsNullOrEmpty(tariff.TariffName) || string.IsNullOrEmpty(tariff.SupplierName))
+                throw new NotAllDataProvidedException("Prosze podac wszystkie wymagane dane (nazwa dostawcy oraz nazwa taryfy).");
+
+            //if yes, check if tariff for provided details exists in db
+            var tariffFromDb = _context.electricity_tariff.FirstOrDefault(property => property.tariff_name.ToLower() == tariff.TariffName.ToLower() &&
+                                                                            property.energy_supplier.energy_supplier_name.ToLower() == tariff.SupplierName.ToLower());
+            if (tariffFromDb == null)
+                throw new NoElementFoundException("Nie odnaleziono informacji o taryfach dla podanych danych. Prosze sprobowac ponownie.");
+            //if found, get user id
+            int userID = GetUserID();
+
+            //get user from db and update info about tariff
+            var user = _context.user.FirstOrDefault(property => property.user_id == userID);
+            if (user == null)
+                throw new NoElementFoundException("Nie odnaleziono informacji o uzytkowniku. Prosze zalogowac sie jeszcze raz i sprobowac ponownie.");
+            user.electricity_tariff_id = tariffFromDb.electricity_tariff_id;
+
+            _context.SaveChanges();
+        }
+
         public void ChangePassword(ChangePasswordDto credentials)
         {
             bool passwordMeetsRules = validatePasswordMeetsRules(credentials.UserNewPassword);
@@ -151,6 +177,7 @@ namespace ConsumptionManagerBackend.Services
 
             //check if provided refresh token and refresh token from db are the same
             var userCredentials = _context.user_credentials.FirstOrDefault(cred => cred.user_credentials_id == user.user_credentials_id);
+
             if (userCredentials.refresh_token != model.RefreshToken)
                 throw new RefreshTokenNotValidException("Podany refresh token jest nieodpowiedni");
 
