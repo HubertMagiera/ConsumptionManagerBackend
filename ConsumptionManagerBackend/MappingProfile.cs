@@ -71,6 +71,14 @@ namespace ConsumptionManagerBackend
                 .ForMember(destination => destination.device_mode_number, map => map.MapFrom(baseClass => baseClass.ModeNumber))
                 .ForMember(destination => destination.device_mode_description, map => map.MapFrom(baseClass => baseClass.DeviceModeDescription));
 
+            CreateMap<Measurement, MeasurementDto>()
+                .ForMember(destination => destination.DeviceName, map => map.MapFrom(baseClass => baseClass.userDevice.device.device_name))
+                .ForMember(destination => destination.DeviceCategory, map => map.MapFrom(baseClass => baseClass.userDevice.device.device_category.device_category_name))
+                .ForMember(destination => destination.EnergyUsed, map => map.MapFrom(baseClass => baseClass.energy_used))
+                .ForMember(destination => destination.TotalPrice, map => map.MapFrom(baseClass => baseClass.price_of_used_energy))
+                .ForMember(destination => destination.StartDate, map => map.MapFrom(baseClass => baseClass.measurement_start_date.ToString("dd/MMMM/yyyy HH:mm")))
+                .ForMember(destination => destination.EndDate, map => map.MapFrom(baseClass => baseClass.measurement_end_date.ToString("dd/MMMM/yyyy HH:mm")));
+
         }
 
 
