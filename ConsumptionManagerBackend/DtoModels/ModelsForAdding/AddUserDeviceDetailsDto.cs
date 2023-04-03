@@ -10,6 +10,9 @@ namespace ConsumptionManagerBackend.DtoModels.ModelsForAdding
         [Required]
         public string DeviceCategory { get; set; }
 
+        [Required]
+        public int ModeNumber { get; set; }
+
         public string DeviceModeDescription { get; set; }
 
         [Required]

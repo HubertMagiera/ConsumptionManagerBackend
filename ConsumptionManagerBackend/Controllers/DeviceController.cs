@@ -78,7 +78,7 @@ namespace ConsumptionManagerBackend.Controllers
             return new ObjectResult(null)
             {
                 StatusCode = StatusCodes.Status200OK,
-                Value = "Status urzadzenia zostal zmieniony"
+                Value = "Status urzadzenia zostal zmieniony."
             };
         }
 
@@ -91,16 +91,21 @@ namespace ConsumptionManagerBackend.Controllers
             return new ObjectResult(null)
             {
                 StatusCode = StatusCodes.Status201Created,
-                Value = "Dodano nowy tryb pracy dla tego urzadzenia"
+                Value = "Dodano nowy tryb pracy dla tego urzadzenia."
             };
         }
 
-        [HttpDelete]
-        [Route("myDevice/deleteDeviceDetails")]
+        [HttpPut]
+        [Route("myDevice/updateDeviceDetails")]
         [Authorize]
-        public ActionResult DeleteDeviceDetails([FromBody] DeleteDeviceDetailsDto detailsToDelete)
+        public ActionResult DeleteDeviceDetails([FromBody] AddUserDeviceDetailsDto details)
         {
-            throw new NotImplementedException();
+            _deviceService.UpdateUserDeviceDetails(details);
+            return new ObjectResult(null)
+            {
+                StatusCode = StatusCodes.Status200OK,
+                Value = "Zaktualizowano tryb pracy urzadzenia."
+            };
         }
     }
 }

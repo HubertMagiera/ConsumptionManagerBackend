@@ -22,5 +22,7 @@ namespace ConsumptionManagerBackend.Services.Interfaces
         void ChangeUserDeviceStatus(SearchForUserDeviceDto deviceToFind);
 
         void AddDetailsToUserDevice(AddUserDeviceDetailsDto details);
+
+        void UpdateUserDeviceDetails(AddUserDeviceDetailsDto details);
     }
 }

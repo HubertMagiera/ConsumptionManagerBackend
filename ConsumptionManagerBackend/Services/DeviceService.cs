@@ -154,34 +154,38 @@ namespace ConsumptionManagerBackend.Services
             //method used to add device details to user device
 
             //check if user provided all required details
-            if (string.IsNullOrEmpty(details.DeviceName) || string.IsNullOrEmpty(details.DeviceCategory) || details.DevicePowerInMode == 0)
-                throw new NotAllDataProvidedException("Prosze podac wszystkie wymagane dane.");
-
-            //if all data provided, check if user owns device with the same name and category as provided
-            var device = GetUserDevicesFromDB().FirstOrDefault(property => property.device.device_name.ToLower() == details.DeviceName.ToLower() &&
-                                                                property.device.device_category.device_category_name.ToLower() == details.DeviceCategory.ToLower());
-            if (device == null)
-                throw new NoElementFoundException("Nie znaleziono urzadzenia dla podanych danych.");
-
-            //if user device exists, check if provided power amount is not greater than max power allowed for this device
-            if (details.DevicePowerInMode > device.device_max_power)
-                throw new WrongInputException("Podano wieksza moc niz maksymalna przewidziana dla urzadzenia. Prosze podac inne dane.");
+            var device = CheckDeviceDetails(details);
 
             //check if power mode with the same power amount already exists for this device
-            var modeWithTheSamePowerAmount = device.details.FirstOrDefault(property => property.device_power_in_mode == details.DevicePowerInMode);
+            //or if power mode with the same number exists
+            var modeWithTheSamePowerAmount = device.details.FirstOrDefault(property => property.device_power_in_mode == details.DevicePowerInMode ||
+                                                                            property.device_mode_number == details.ModeNumber);
             if (modeWithTheSamePowerAmount != null)
-                throw new WrongInputException("Urzadzenie posiada juz przypisany tryb pracy z taka sama moca.");
-
-            //get maximum number of mode and assign one greater
-            var modeNumber = device.details.Max(property => property.device_mode_number) +1;
+                throw new WrongInputException("Tryb pracy o z podana moca lub o takim samym numerze juz istnieje");
 
             //create details that will be added to database
             DeviceDetails detailsToBeAdded = _mapper.Map<DeviceDetails>(details);
-            detailsToBeAdded.device_mode_number = modeNumber;
             detailsToBeAdded.user_device_id = device.user_device_id;
 
             //save it to db
             _context.device_details.Add(detailsToBeAdded);
+            _context.SaveChanges();
+        }
+
+        public void UpdateUserDeviceDetails(AddUserDeviceDetailsDto details)
+        {
+            //method used to update power mode in user device
+
+            //check if all data provided and correct, and get user device from db
+            var device = CheckDeviceDetails(details);
+
+            //check if details with provided mode number exists
+            var detailsToUpdate = device.details.FirstOrDefault(property => property.device_mode_number == details.ModeNumber);
+            if (detailsToUpdate == null)
+                throw new NoElementFoundException("Nie znaleziono danych dla podanego oznaczenia trybu pracy. Prosze sprawdzic poprawnosc danych.");
+
+            detailsToUpdate.device_mode_description = details.DeviceModeDescription;
+            detailsToUpdate.device_power_in_mode = details.DevicePowerInMode;
             _context.SaveChanges();
         }
 
@@ -201,6 +205,25 @@ namespace ConsumptionManagerBackend.Services
                                         .ToList();
             return userDevices;
 
+        }
+
+        private UserDevice CheckDeviceDetails(AddUserDeviceDetailsDto details)
+        {
+            //check if user provided all required details
+            if (string.IsNullOrEmpty(details.DeviceName) || string.IsNullOrEmpty(details.DeviceCategory) || details.DevicePowerInMode == 0 || details.ModeNumber == 0)
+                throw new NotAllDataProvidedException("Prosze podac wszystkie wymagane dane.");
+
+            //if all data provided, check if user owns device with the same name and category as provided
+            var device = GetUserDevicesFromDB().FirstOrDefault(property => property.device.device_name.ToLower() == details.DeviceName.ToLower() &&
+                                                                property.device.device_category.device_category_name.ToLower() == details.DeviceCategory.ToLower());
+            if (device == null)
+                throw new NoElementFoundException("Nie znaleziono urzadzenia dla podanych danych.");
+
+            //if user device exists, check if provided power amount is not greater than max power allowed for this device
+            if (details.DevicePowerInMode > device.device_max_power)
+                throw new WrongInputException("Podano wieksza moc niz maksymalna przewidziana dla urzadzenia. Prosze podac inne dane.");
+            //return device in case all data is provided and correct
+            return device;
         }
 
 
