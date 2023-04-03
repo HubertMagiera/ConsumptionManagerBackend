@@ -14,5 +14,7 @@
 
         public List<UserDevice>user_devices { get; set; }
 
+        public List<Measurement>measurements { get; set; }
+
     }
 }

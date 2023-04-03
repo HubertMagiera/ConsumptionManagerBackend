@@ -20,6 +20,8 @@ namespace ConsumptionManagerBackend.Database
         public DbSet<Device> device { get; set; }
         public DbSet<DeviceCategory>device_category { get; set; }
         public DbSet<UserDevice>user_device { get; set; }
+        public DbSet<Measurement> measurement { get; set; }
+        public DbSet<Schedule>schedule { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -170,6 +172,36 @@ namespace ConsumptionManagerBackend.Database
                 ud.HasOne(property => property.device)
                     .WithMany(device => device.user_devices)
                     .HasForeignKey(property => property.device_id);
+            });
+
+            modelBuilder.Entity<Measurement>(m =>
+            {
+                m.HasKey(property => property.measurement_id);
+
+                m.Property(property => property.measurement_id).IsRequired();
+                m.Property(property => property.user_id).IsRequired();
+                m.Property(property => property.user_device_id).IsRequired();
+                m.Property(property => property.measurement_start_date).IsRequired();
+                m.Property(property => property.measurement_end_date).IsRequired();
+                m.Property(property => property.energy_used).IsRequired();
+                m.Property(property => property.price_of_used_energy).IsRequired();
+
+                m.HasOne(property => property.user)
+                    .WithMany(usr => usr.measurements)
+                    .HasForeignKey(property => property.user_id);
+
+                m.HasOne(property => property.userDevice)
+                    .WithMany(ud => ud.measurements)
+                    .HasForeignKey(property => property.user_device_id);
+            });
+
+            modelBuilder.Entity<Schedule>(s =>
+            {
+                s.HasKey(property => property.schedule_id);
+
+                s.HasOne(property => property.measurement)
+                    .WithOne(m => m.schedule)
+                    .HasForeignKey<Schedule>(property => property.measurement_id);
             });
         }
     }
