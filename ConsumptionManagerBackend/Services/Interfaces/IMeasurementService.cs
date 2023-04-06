@@ -1,4 +1,5 @@
-﻿using ConsumptionManagerBackend.DtoModels.ModelsForAdding;
+﻿using ConsumptionManagerBackend.DtoModels;
+using ConsumptionManagerBackend.DtoModels.ModelsForAdding;
 using ConsumptionManagerBackend.DtoModels.ModelsForViewing;
 
 namespace ConsumptionManagerBackend.Services.Interfaces
@@ -13,6 +14,6 @@ namespace ConsumptionManagerBackend.Services.Interfaces
 
         void AddNewMeasurementWithSchedule(AddMeasurementWithScheduleDto measurement);
 
-        List<MeasurementDto> MeasurementsBetweenDates(DateTime startDate, DateTime endDate);
+        List<MeasurementDto> MeasurementsBetweenDates(DatesInterval dates);
     }
 }

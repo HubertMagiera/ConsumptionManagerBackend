@@ -20,7 +20,8 @@ namespace ConsumptionManagerBackend
             CreateMap<AddUserDto, User>()
                 .ForMember(destination => destination.user_surname, map => map.MapFrom(baseClass => baseClass.UserSurname))
                 .ForMember(destination => destination.user_name, map => map.MapFrom(baseClass => baseClass.UserName))
-                .ForMember(destination => destination.user_credentials_id, map => map.MapFrom(baseClass => baseClass.UserCredentialsId));
+                .ForMember(destination => destination.user_credentials_id, map => map.MapFrom(baseClass => baseClass.UserCredentialsId))
+                .ForMember(destination => destination.cheaper_energy_limit, map => map.MapFrom(baseClass => baseClass.CheaperEnergyLimit));
 
             CreateMap<EnergySupplier, EnergySupplierWithTariffsDto>()
                 .ForMember(destination => destination.EnergySupplierName, map => map.MapFrom(baseClass => baseClass.energy_supplier_name))
@@ -36,7 +37,8 @@ namespace ConsumptionManagerBackend
                 .ForMember(destination => destination.DayOfWeekName, map => map.MapFrom(baseClass => baseClass.day_of_week.day_name))
                 .ForMember(destination => destination.StartTime, map => map.MapFrom(baseClass => baseClass.start_time))
                 .ForMember(destination => destination.EndTime, map => map.MapFrom(baseClass => baseClass.end_time))
-                .ForMember(destination => destination.PricePerKwh, map => map.MapFrom(baseClass => baseClass.price_per_kwh));
+                .ForMember(destination => destination.PricePerKwh, map => map.MapFrom(baseClass => baseClass.price_per_kwh))
+                .ForMember(destination => destination.PricePerKwhAfterLimit, map => map.MapFrom(baseClass => baseClass.price_per_kwh_after_limit));
 
             CreateMap<EnergySupplier, EnergySupplierDto>()
                 .ForMember(destination => destination.EnergySupplierName, map => map.MapFrom(baseClass => baseClass.energy_supplier_name));

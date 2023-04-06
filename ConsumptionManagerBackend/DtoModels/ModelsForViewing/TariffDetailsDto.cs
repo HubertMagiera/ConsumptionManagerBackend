@@ -13,5 +13,7 @@ namespace ConsumptionManagerBackend.DtoModels.ModelsForViewing
 
         public double PricePerKwh { get; set; }
 
+        public double PricePerKwhAfterLimit { get; set; }
+
     }
 }

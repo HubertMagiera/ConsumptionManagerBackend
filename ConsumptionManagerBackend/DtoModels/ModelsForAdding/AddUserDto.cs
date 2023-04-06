@@ -16,5 +16,8 @@ namespace ConsumptionManagerBackend.DtoModels.ModelsForAdding
         public string EnergySupplierName { get; set; }
         [Required]
         public string ElectricityTariffName { get; set; }
+
+        [Required]
+        public int CheaperEnergyLimit { get; set; }
     }
 }

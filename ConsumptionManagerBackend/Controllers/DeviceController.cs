@@ -20,7 +20,7 @@ namespace ConsumptionManagerBackend.Controllers
 
         [HttpGet]
         [Route("categories")]
-        //[Authorize]
+        [Authorize]
         public ActionResult<List<DeviceCategoryDto>> GetDeviceCategories()
         {
             return Ok(_deviceService.GetCategories());
@@ -28,7 +28,7 @@ namespace ConsumptionManagerBackend.Controllers
 
         [HttpGet]
         [Route("all")]
-        //[Authorize]
+        [Authorize]
         public ActionResult<List<ViewDeviceDto>>GetAllDevices()
         {
             return Ok(_deviceService.GetDevices());
@@ -36,7 +36,7 @@ namespace ConsumptionManagerBackend.Controllers
 
         [HttpGet]
         [Route("{category}")]
-        //[Authorize]
+        [Authorize]
         public ActionResult<List<ViewDeviceDto>> GetDevicesForCategory([FromRoute] string category)
         {
             return Ok(_deviceService.GetDevicesForCategory(category));

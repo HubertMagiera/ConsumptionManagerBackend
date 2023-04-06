@@ -16,6 +16,8 @@ namespace ConsumptionManagerBackend.Database.DatabaseModels
 
         public double price_per_kwh { get; set; }
 
+        public double price_per_kwh_after_limit { get; set; }
+
         public DayOfWeek day_of_week { get; set;}
 
         public ElectricityTariff electricity_tariff { get; set; }

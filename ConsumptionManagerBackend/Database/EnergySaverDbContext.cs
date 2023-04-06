@@ -49,6 +49,7 @@ namespace ConsumptionManagerBackend.Database
                 u.Property(usr => usr.user_id).IsRequired();
                 u.Property(usr => usr.electricity_tariff_id).IsRequired();
                 u.Property(usr => usr.user_credentials_id).IsRequired();
+                u.Property(usr => usr.cheaper_energy_limit).IsRequired();
 
                 u.HasOne(usr => usr.electricity_tariff)
                 .WithMany(tariff => tariff.tariff_users)
@@ -101,6 +102,7 @@ namespace ConsumptionManagerBackend.Database
                 td.Property(prop => prop.start_time).IsRequired();
                 td.Property(prop => prop.end_time).IsRequired();
                 td.Property(prop => prop.price_per_kwh).IsRequired();
+                td.Property(prop => prop.price_per_kwh_after_limit).IsRequired();
             });
 
             modelBuilder.Entity<EnergySupplier>(es =>
