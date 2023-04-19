@@ -14,6 +14,8 @@
 
         public DateTime measurement_end_date { get; set; }
 
+        public DateTime measurement_added_date { get; set; }
+
         public double price_of_used_energy { get; set; }
 
         public User user { get; set; }

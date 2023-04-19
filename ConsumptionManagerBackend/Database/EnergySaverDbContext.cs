@@ -187,6 +187,7 @@ namespace ConsumptionManagerBackend.Database
                 m.Property(property => property.measurement_end_date).IsRequired();
                 m.Property(property => property.energy_used).IsRequired();
                 m.Property(property => property.price_of_used_energy).IsRequired();
+                m.Property(property => property.measurement_added_date).IsRequired();
 
                 m.HasOne(property => property.user)
                     .WithMany(usr => usr.measurements)

@@ -210,6 +210,7 @@ namespace ConsumptionManagerBackend.Services
                 energy_used = energyUsed,
                 measurement_start_date = measurement.StartDate,
                 measurement_end_date = measurement.EndDate,
+                measurement_added_date = DateTime.Now,
                 user_id = userID,
                 user_device_id = device.user_device_id,
                 price_of_used_energy = totalPrice
