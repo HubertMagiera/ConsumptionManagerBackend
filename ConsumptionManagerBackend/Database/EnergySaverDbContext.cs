@@ -202,6 +202,10 @@ namespace ConsumptionManagerBackend.Database
             {
                 s.HasKey(property => property.schedule_id);
 
+                s.Property(property => property.schedule_id).IsRequired();
+                s.Property(property => property.measurement_id).IsRequired();
+                s.Property(property => property.schedule_frequency).IsRequired();
+
                 s.HasOne(property => property.measurement)
                     .WithOne(m => m.schedule)
                     .HasForeignKey<Schedule>(property => property.measurement_id);
