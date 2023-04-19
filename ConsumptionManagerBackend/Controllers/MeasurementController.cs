@@ -55,5 +55,18 @@ namespace ConsumptionManagerBackend.Controllers
                 Value = "Zarejestrowano nowy pomiar."
             };
         }
+
+        [HttpPost]
+        [Route("newMeasurementWithSchedule")]
+        [Authorize]
+        public ActionResult AddNewMeasurementWithSchedule([FromBody] AddMeasurementWithScheduleDto measurement)
+        {
+            _measurementService.AddNewMeasurementWithSchedule(measurement);
+            return new ObjectResult(null)
+            {
+                StatusCode = StatusCodes.Status201Created,
+                Value = "Zarejestrowano nowy pomiar."
+            };
+        }
     }
 }

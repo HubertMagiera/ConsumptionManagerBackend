@@ -12,9 +12,11 @@ namespace ConsumptionManagerBackend.Controllers
     public class UserController: ControllerBase
     {
         private readonly IUserService _userService;
-        public UserController(IUserService userService)
+        private readonly IMeasurementService _measurementService;
+        public UserController(IUserService userService, IMeasurementService measurementService)
         {
             _userService = userService;
+            _measurementService = measurementService;
         }
         [HttpPost]
         [Route("register")]
@@ -43,7 +45,9 @@ namespace ConsumptionManagerBackend.Controllers
         [Route("login")]
         public ActionResult<TokenModel> LoginUser([FromBody] UserCredentialsDto loginUser)
         {
-            return Ok(_userService.LoginUser(loginUser));
+            var tokens = _userService.LoginUser(loginUser);
+            _measurementService.AddMeasurementsBasedOnSchedule();
+            return Ok(tokens);
 
         }
 

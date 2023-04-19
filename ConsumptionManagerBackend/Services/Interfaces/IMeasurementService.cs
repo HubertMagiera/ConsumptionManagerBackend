@@ -15,5 +15,7 @@ namespace ConsumptionManagerBackend.Services.Interfaces
         void AddNewMeasurementWithSchedule(AddMeasurementWithScheduleDto measurement);
 
         List<MeasurementDto> MeasurementsBetweenDates(DatesInterval dates);
+
+        void AddMeasurementsBasedOnSchedule();
     }
 }
