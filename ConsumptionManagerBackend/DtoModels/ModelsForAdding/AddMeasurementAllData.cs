@@ -1,6 +1,9 @@
-﻿namespace ConsumptionManagerBackend.Database.DatabaseModels
+﻿namespace ConsumptionManagerBackend.DtoModels.ModelsForAdding
 {
-    public class Measurement
+    //class used to register new measurement
+    // user does not see this class
+    // fields in this class are populated by code
+    public class AddMeasurementAllData
     {
         public int measurement_id { get; set; }
 
@@ -18,10 +21,6 @@
 
         public double price_of_used_energy { get; set; }
 
-        public User user { get; set; }
-
-        public UserDevice userDevice { get; set; }
-
-        public Schedule schedule { get; set; }
+        public int device_power_in_mode { get; set; }
     }
 }

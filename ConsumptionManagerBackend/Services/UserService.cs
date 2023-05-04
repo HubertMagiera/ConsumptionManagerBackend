@@ -39,7 +39,7 @@ namespace ConsumptionManagerBackend.Services
                 string.IsNullOrEmpty(addUser.UserName) || string.IsNullOrEmpty(addUser.UserSurname))
                 throw new NotAllDataProvidedException("Prosze podac wszystkie wymagane dane.");
             //check if provided chepaer energy limit = 2000, 2600 or 3000 kwh
-            if (addUser.CheaperEnergyLimit != 2000 || addUser.CheaperEnergyLimit != 2600 || addUser.CheaperEnergyLimit != 3000)
+            if (addUser.CheaperEnergyLimit != 2000 && addUser.CheaperEnergyLimit != 2600 && addUser.CheaperEnergyLimit != 3000)
                 throw new WrongInputException("Prosze wybrac odpowiedni limit tanszej energii elektrycznej. 2000, 2600 lub 3000 KWh");
 
             //if all data is provided, check if tariff for provided data exists in db

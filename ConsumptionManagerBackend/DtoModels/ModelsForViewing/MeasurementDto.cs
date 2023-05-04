@@ -8,7 +8,7 @@ namespace ConsumptionManagerBackend.DtoModels.ModelsForViewing
 
         public string DeviceCategory { get; set; }
 
-        public int EnergyUsed { get; set; }
+        public double EnergyUsed { get; set; }
 
         public double TotalPrice { get; set; }
 

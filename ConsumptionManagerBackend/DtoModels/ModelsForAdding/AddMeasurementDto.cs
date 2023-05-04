@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ConsumptionManagerBackend.DtoModels.ModelsForAdding
 {
+    //class with data that needs to be provided by a user to sucessfully add new measurement
     public class AddMeasurementDto
     {
         [Required]

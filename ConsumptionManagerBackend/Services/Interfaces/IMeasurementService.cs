@@ -6,7 +6,7 @@ namespace ConsumptionManagerBackend.Services.Interfaces
 {
     public interface IMeasurementService
     {
-        void AddNewMeasurement(AddMeasurementDto measurement);
+        int AddNewMeasurement(AddMeasurementDto measurement);
 
         List<MeasurementDto> GetAllMeasurements();
 
@@ -16,6 +16,6 @@ namespace ConsumptionManagerBackend.Services.Interfaces
 
         List<MeasurementDto> MeasurementsBetweenDates(DatesInterval dates);
 
-        void AddMeasurementsBasedOnSchedule();
+        void AddMeasurementsBasedOnSchedule(int userID);
     }
 }

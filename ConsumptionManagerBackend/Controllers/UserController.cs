@@ -1,9 +1,11 @@
 ﻿using ConsumptionManagerBackend.DtoModels;
 using ConsumptionManagerBackend.DtoModels.ModelsForAdding;
 using ConsumptionManagerBackend.DtoModels.ModelsForUpdates;
+using ConsumptionManagerBackend.Services;
 using ConsumptionManagerBackend.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace ConsumptionManagerBackend.Controllers
 {
@@ -13,10 +15,12 @@ namespace ConsumptionManagerBackend.Controllers
     {
         private readonly IUserService _userService;
         private readonly IMeasurementService _measurementService;
-        public UserController(IUserService userService, IMeasurementService measurementService)
+        private readonly ITokenService _tokenService;
+        public UserController(IUserService userService, IMeasurementService measurementService,ITokenService tokenService)
         {
             _userService = userService;
             _measurementService = measurementService;
+            _tokenService = tokenService;
         }
         [HttpPost]
         [Route("register")]
@@ -46,7 +50,9 @@ namespace ConsumptionManagerBackend.Controllers
         public ActionResult<TokenModel> LoginUser([FromBody] UserCredentialsDto loginUser)
         {
             var tokens = _userService.LoginUser(loginUser);
-            _measurementService.AddMeasurementsBasedOnSchedule();
+            //once user is validated, the method for refreshing his scheduled measurements is called
+            int userID =Convert.ToInt32(_tokenService.GetPrincipalFromOldToken(tokens.AccessToken).FindFirstValue(ClaimTypes.NameIdentifier));
+            _measurementService.AddMeasurementsBasedOnSchedule(userID);
             return Ok(tokens);
 
         }
