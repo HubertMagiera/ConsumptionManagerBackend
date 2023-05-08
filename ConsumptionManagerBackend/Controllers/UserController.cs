@@ -16,6 +16,8 @@ namespace ConsumptionManagerBackend.Controllers
         private readonly IUserService _userService;
         private readonly IMeasurementService _measurementService;
         private readonly ITokenService _tokenService;
+
+        //token service and measurement service are injected in order to create tokens and to refresh the measurements which are scheduled
         public UserController(IUserService userService, IMeasurementService measurementService,ITokenService tokenService)
         {
             _userService = userService;

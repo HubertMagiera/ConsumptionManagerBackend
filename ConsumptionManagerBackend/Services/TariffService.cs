@@ -21,21 +21,22 @@ namespace ConsumptionManagerBackend.Services
             _mapper = mapper;
         }
 
-
-
         public List<ElectricityTariffDto> GetElectricityTariffsForEnergySupplier(string energySupplierName)
         {
             //method used to get all tariffs available for specified energy supplier
-            if (string.IsNullOrEmpty(energySupplierName))
-                throw new WrongInputException("Prosze podac nazwe dostawcy pradu");
+            //this method returns only basic info about each of the tariff, it does not provide tariff details
 
-            //validation if snergy supplier with provided name exists in db
+            //check if user provided required data and throw an error if not
+            if (string.IsNullOrEmpty(energySupplierName))
+                throw new WrongInputException("Prosze podac nazwe dostawcy pradu.");
+
+            //validation if energy supplier with provided name exists in db
             var energySupplier = _context.energy_supplier.FirstOrDefault(supplier => supplier.energy_supplier_name.ToLower() == energySupplierName.ToLower());
             if (energySupplier == null)
-                throw new WrongInputException("Prosze podac poprawna nazwe dostawcy");
+                throw new WrongInputException("Prosze podac poprawna nazwe dostawcy.");
 
-            //if validation is successfull, return all tariffs for energy supplier (without their details)
-            //projectTo method allows to get only those columns which are used in dto model instead of collecting all columns from db
+            //if validation is successfull, return all tariffs for energy supplier
+            //projectTo method allows to get only those columns which are used in dto model instead of collecting all columns from database
             var tariffsForSupplier = _context.electricity_tariff
                                       .Where(tariff => tariff.energy_supplier_id == energySupplier.energy_supplier_id)                                      
                                       .ProjectTo<ElectricityTariffDto>(_mapper.ConfigurationProvider)
@@ -45,6 +46,7 @@ namespace ConsumptionManagerBackend.Services
 
         public List<EnergySupplierDto> GetEnergySuppliers()
         {
+            //method used to get all energy suppliers from database
             var suppliersToReturn = _context.energy_supplier
                                     .ProjectTo<EnergySupplierDto>(_mapper.ConfigurationProvider)
                                     .ToList();

@@ -1,5 +1,4 @@
-﻿using ConsumptionManagerBackend.Database.DatabaseModels;
-using ConsumptionManagerBackend.DtoModels.ModelsForAdding;
+﻿using ConsumptionManagerBackend.DtoModels.ModelsForAdding;
 using ConsumptionManagerBackend.DtoModels.ModelsForSearching;
 using ConsumptionManagerBackend.DtoModels.ModelsForViewing;
 

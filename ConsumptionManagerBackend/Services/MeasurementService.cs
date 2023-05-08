@@ -29,26 +29,33 @@ namespace ConsumptionManagerBackend.Services
         public void AddMeasurementsBasedOnSchedule(int userID)
         {
             //method used to check if measurements with created schedules should be refreshed
+            //method is called every time the user is logging into application
 
-            //get user measurements which have schedules assigned
+            //get user measurements
             var userMeasurements = _context.measurement.Where(property => property.user_id == userID).ToList();
+            //get all schedules from database
             var schedules = _context.schedule.ToList();
-            List<MeasurementsWithSchedule> measurments = new List<MeasurementsWithSchedule>();
+            //initialize a list to store all user measurements with schedules assigned
+            List<MeasurementsWithSchedule> measurements = new List<MeasurementsWithSchedule>();
 
             //create list of user measurements which have schedule created
             foreach(var measurement in userMeasurements)
             {
+                //check if current measurement is assigned to any schedule
+                //if yes, add it to a list
+                //if not, continue with next measurement
                 var scheduleForMeasurement = schedules.FirstOrDefault(property => property.measurement_id == measurement.measurement_id);
                 if (scheduleForMeasurement == null)
                     continue;
-                measurments.Add(new MeasurementsWithSchedule
+                measurements.Add(new MeasurementsWithSchedule
                 {
                     Measurement = measurement,
                     Schedule = scheduleForMeasurement
                 });
             }
 
-            foreach(var measurement in measurments)
+            //loop to iterate through a list of measurements with schedule
+            foreach(var measurement in measurements)
             {
                 //get date difference between today and the date of measurement
                 int howManyDays = (DateTime.Now - measurement.Measurement.measurement_added_date).Days;
@@ -67,8 +74,11 @@ namespace ConsumptionManagerBackend.Services
                 //else get number of measurements to be added by division of date difference and schedule frequency
                 else
                 {
+                    //if date difference is lower than the frequency, ignore this iteration
+                    //e.g. date difference is two days but the measurement is set up to be refreshed every three days
                     if (howManyDays < frequency)
-                        break;
+                        continue;
+                    //get amount of measurements to be added
                     howManyMeasurements = Convert.ToInt32(Math.Floor((double)howManyDays / frequency));
                 }
                 
@@ -78,7 +88,7 @@ namespace ConsumptionManagerBackend.Services
                     //get length of this measurement (hours)
                     var measurementLength = (measurement.Measurement.measurement_end_date - measurement.Measurement.measurement_start_date).TotalHours;
 
-                    //get measurement to be added and adjust start, end and added date by adding schedule frequency to each of them
+                    //create measurement to be added and adjust start, end and added date by adding schedule frequency to each of them
                     var measurementToAdd = new AddMeasurementAllData()
                     {
                         device_power_in_mode = Convert.ToInt32(measurement.Measurement.energy_used * 1000 / measurementLength),
@@ -89,6 +99,8 @@ namespace ConsumptionManagerBackend.Services
                         measurement_added_date = measurement.Measurement.measurement_added_date.AddDays(frequency)
                     };
 
+                    //get id us newly added measurement
+                    //this id is used to update info in schedule
                     int newMeasurementID = RegisterMeasurement(measurementToAdd);
 
                     //update schedule, change measurement id which is assigned to it
@@ -121,26 +133,31 @@ namespace ConsumptionManagerBackend.Services
             if (datesCorrect == false)
                 throw new WrongInputException("Data zakonczenia pomiaru nie moze byc wczesniejsza od daty jego rozpoczecia.");
 
+            //get id of user who sent the request
             int userID = _userService.GetUserID();
 
-            //get device from db
+            //get user devices from database
             var userDevices = _context.user_device
                                         .Where(property => property.user_id == userID)
                                         .Include(userDev => userDev.device)
                                         .Include(userDev => userDev.device.device_category)
                                         .Include(userDev => userDev.details)
                                         .ToList();
+            //get user device from list of user devices
             var device = userDevices.FirstOrDefault(property => property.device.device_name.ToLower() == measurement.Device.DeviceName.ToLower() &&
                                                                 property.device.device_category.device_category_name.ToLower() == measurement.Device.DeviceCategory.ToLower() &&
                                                                 property.user_id == userID);
+            //check if device found and if found, if it is active
             if (device == null)
                 throw new NoElementFoundException("Nie odnaleziono urzadzenia dla podanych danych.");
             if (device.is_active == false)
                 throw new WrongInputException("Wskazane urzadzenie jest oznaczone jako nieaktywne.");
+            //check if user device has the same power mode number available as the one provided
             var deviceMode = device.details.FirstOrDefault(property => property.device_mode_number == measurement.DeviceModeNumber);
             if (deviceMode == null)
                 throw new NoElementFoundException("Nie odnaleziono trybu pracy o podanym numerze.");
 
+            //create measurement that will be added to database and pass it to a method which registers it in database
             var measurementToAdd = new AddMeasurementAllData()
             {
                 device_power_in_mode = deviceMode.device_power_in_mode,
@@ -156,14 +173,16 @@ namespace ConsumptionManagerBackend.Services
 
         public void AddNewMeasurementWithSchedule(AddMeasurementWithScheduleDto measurement)
         {
-            //method used to add new measurement with schedule
+            //method used to add new measurement and to indicate that it has a schedule assigned
 
             //check if details about schedule are provided
             if (measurement.ScheduleFrequency <= 0 || measurement.ScheduleFrequency > 7)
                 throw new WrongInputException("Jako czestotliwosc pomiaru prosze podac liczbe z zakresu od 1 do 7. (1 - pomiar powtarzany codziennie, 7 - raz w tygodniu)");
 
+            //register measurement in database and get its id which will be assigned
             int measurementID = AddNewMeasurement(measurement.Measurement);
 
+            //add schedule for this measurement
             _context.schedule.Add(new Schedule
             {
                 measurement_id = measurementID,
@@ -174,6 +193,7 @@ namespace ConsumptionManagerBackend.Services
 
         public List<MeasurementDto> GetAllMeasurements()
         {
+            //method used to return all measurements assigned to the user
             return _mapper.Map<List<MeasurementDto>>(GetMeasurementsFromDb());
         }
 
@@ -189,8 +209,9 @@ namespace ConsumptionManagerBackend.Services
             if (DateTime.Compare(dates.startDate, dates.endDate) > 0)
                 throw new WrongInputException("Data zakonczenia pomiaru nie moze byc wczesniejsza od daty jego rozpoczecia.");
             
-            //get measurements which are between specified dates
+            //get all measurements 
             var measurements = GetMeasurementsFromDb();
+            //filter list to return only measurement which are between specified dates
             measurements = measurements.Where(property => property.measurement_start_date >= dates.startDate && property.measurement_end_date <= dates.endDate).ToList();
 
             //check if any measurements are found
@@ -202,7 +223,7 @@ namespace ConsumptionManagerBackend.Services
 
         public List<MeasurementDto> MeasurementsForCategory(string category)
         {
-            //method used to return measurements for specified category
+            //method used to return measurements for specified category of devices
 
             //check if category name is provided
             if (string.IsNullOrEmpty(category))
@@ -241,6 +262,10 @@ namespace ConsumptionManagerBackend.Services
 
         private int RegisterMeasurement(AddMeasurementAllData measurement)
         {
+            //method used to register new measurement in database
+            //this method is invoked by AddMeasurementsBasedOnSchedule and AddNewMeasurement methods
+
+            //validate if user who wants to create a measurement is available in database
             var user = _context.user.Include(tariff => tariff.electricity_tariff)
                                     .Include(tariffDetails => tariffDetails.electricity_tariff.tariff_details)
                                     .FirstOrDefault(property => property.user_id == measurement.user_id);
@@ -262,7 +287,7 @@ namespace ConsumptionManagerBackend.Services
 
 
 
-            //get info about day from start date and end date
+            //get info about day of the week from start date and end date
             var startDay = measurement.measurement_start_date.DayOfWeek;
             int startDayNumber;
             //if day number is 0 (sunday), change it to 7, to match data in database
@@ -271,6 +296,7 @@ namespace ConsumptionManagerBackend.Services
             else
                 startDayNumber = (int)startDay;
 
+            //do the same for end date
             var endDay = measurement.measurement_end_date.DayOfWeek;
             int endDayNumber;
             if (endDay == System.DayOfWeek.Sunday)
@@ -278,6 +304,7 @@ namespace ConsumptionManagerBackend.Services
             else
                 endDayNumber = (int)endDay;
 
+            //create timespan variables from time of start and end of a measurement
             var startTime = new TimeSpan(measurement.measurement_start_date.TimeOfDay.Hours, measurement.measurement_start_date.TimeOfDay.Minutes, measurement.measurement_start_date.TimeOfDay.Seconds);
             var endTime = new TimeSpan(measurement.measurement_end_date.TimeOfDay.Hours, measurement.measurement_end_date.TimeOfDay.Minutes, measurement.measurement_end_date.TimeOfDay.Seconds);
 
@@ -293,16 +320,18 @@ namespace ConsumptionManagerBackend.Services
             //loop to count price and energy used for this measurement
             while (finished == false)
             {
+                //get tariff details which covers the timestamp 
                 var currentDetails = userTariff.tariff_details.FirstOrDefault(property => property.day_of_week_id == currentDay &&
                                                                                 TimeSpan.Parse(property.start_time) <= startTimeForCurrentIteration &&
                                                                                 TimeSpan.Parse(property.end_time) > startTimeForCurrentIteration);
 
                 double amountOfHours = 0;
 
-                //check if current day is equal to day when measurement ends
+                //check if day from tariff details currently used is equal to day when measurement ends
                 if (currentDetails.day_of_week_id == endDayNumber)
                 {
                     //check if measurement end time is earlier than end time for current tariff details end time
+                    //this is true only in case of last iteration
                     if (endTime <= TimeSpan.Parse(currentDetails.end_time))
                     {
                         //if first iteration, get amount of hours by subtracting measurement start time and end time
@@ -335,6 +364,7 @@ namespace ConsumptionManagerBackend.Services
                     }
                 }
                 //if current day is not equal to day when measurement ends
+                //it means that measurement is longer than one day
                 else
                 {
                     //if first iteration, get amount of hours by subtracting measurement start time and end time for current tariff details
@@ -350,7 +380,7 @@ namespace ConsumptionManagerBackend.Services
 
                 }
 
-                //if user exceeded his cheaper enegy limit for current year, use more expensive price
+                //if user exceeded his cheaper energy limit for current year, use more expensive price
                 double pricePerKwh;
                 if (limitNotExceeded)
                     pricePerKwh = currentDetails.price_per_kwh;
@@ -358,9 +388,11 @@ namespace ConsumptionManagerBackend.Services
                     pricePerKwh = currentDetails.price_per_kwh_after_limit;
 
                 //add amount of energy used in current tariff details period to sum of energy used in earlier time periods
+                //energyUsed variable indicates the amount of energy used in the measurement that needs to be added, not overall consumption
                 energyUsed += amountOfHours * measurement.device_power_in_mode;
 
                 //add price of energy used in current tariff details period to sum of prices for earlier periods
+                //totalPrice variable indicates the price of energy used in the measurement that needs to be added
                 totalPrice += (amountOfHours * measurement.device_power_in_mode) / 1000 * pricePerKwh;
 
                 //if end time in current tariff details indicates end of the day, increment number of day and set start time for next time period to midnight
@@ -385,7 +417,7 @@ namespace ConsumptionManagerBackend.Services
             //change Wh to KWh
             energyUsed /= 1000;
 
-            //save data to db
+            //save data to database
             var measurementToAdd = new Measurement()
             {
                 energy_used = energyUsed,

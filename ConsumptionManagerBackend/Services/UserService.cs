@@ -35,9 +35,10 @@ namespace ConsumptionManagerBackend.Services
             //in case user wants to change his tariff, another method needs to be used
 
             //validate if user provided all of required data
-            if (string.IsNullOrEmpty(addUser.EnergySupplierName) || string.IsNullOrEmpty(addUser.ElectricityTariffName) || addUser.UserCredentialsId == 0 ||
+            if (string.IsNullOrEmpty(addUser.EnergySupplierName) || string.IsNullOrEmpty(addUser.ElectricityTariffName) || addUser.UserCredentialsId <= 0 ||
                 string.IsNullOrEmpty(addUser.UserName) || string.IsNullOrEmpty(addUser.UserSurname))
                 throw new NotAllDataProvidedException("Prosze podac wszystkie wymagane dane.");
+
             //check if provided chepaer energy limit = 2000, 2600 or 3000 kwh
             if (addUser.CheaperEnergyLimit != 2000 && addUser.CheaperEnergyLimit != 2600 && addUser.CheaperEnergyLimit != 3000)
                 throw new WrongInputException("Prosze wybrac odpowiedni limit tanszej energii elektrycznej. 2000, 2600 lub 3000 KWh");
@@ -53,12 +54,12 @@ namespace ConsumptionManagerBackend.Services
             if (credentials == null)
                 throw new UserNotFoundException("Prosze sprawdzic poprawnosc podanych danych.");
 
-            //check if any user has provided credentials id assigned to account
+            //check if provided credentials id is already assigned to any user
             var userWithTheSameCredentials = _context.user.FirstOrDefault(credsId => credsId.user_credentials_id == addUser.UserCredentialsId);
             if (userWithTheSameCredentials != null)
                 throw new CredentialsAlreadyInUseException("Prosze sprawdzic poprawnosc podanych danych.");
 
-            //if all is good, add user to db
+            //if all is good, add user to database
             var userToBeAdded = _mapper.Map<User>(addUser);
             userToBeAdded.electricity_tariff_id = electricityTariff.electricity_tariff_id;
             _context.user.Add(userToBeAdded);
@@ -76,12 +77,15 @@ namespace ConsumptionManagerBackend.Services
 
         public TokenModel LoginUser(UserCredentialsDto userCredentials)
         {
-            //check if provided email is in db
+            //method used to login user
+            //user needs to provide email address and password
+
+            //check if provided email is in database
             var creds = _context.user_credentials.FirstOrDefault(user => user.user_email == userCredentials.UserEmail);
             if (creds == null)
                 throw new WrongCredentialsException("Prosze sprawdzic poprawnosc podanych danych logowania.");
 
-            //check if provided password is the same as the one in db
+            //check if provided password is the same as the one in database
             var validationResult = _passwordHasher.VerifyHashedPassword(creds, creds.user_password, userCredentials.UserPassword);
             if (validationResult != PasswordVerificationResult.Success)
                 throw new WrongCredentialsException("Prosze sprawdzic poprawnosc podanych danych logowania.");
@@ -102,20 +106,27 @@ namespace ConsumptionManagerBackend.Services
 
         public int RegisterUser(UserCredentialsDto userCredentials)
         {
+            //method used to create an entry in table "user credentials"
+            //first step of creating new account. Second step is assigning info about the user with usage of method "AddUserData"
+
+            //validate if provided email has correct format
             bool emailFormat = validateEmailFormat(userCredentials.UserEmail);
             if (emailFormat == false)
                 throw new IncorrectEmailException("Podany adres email ma niepoprawny format.");
 
-            bool passwordMeetsRules = validatePasswordMeetsRules(userCredentials.UserPassword);
-            if (passwordMeetsRules == false)
-                throw new PasswordDoesNotMeetRulesException("Podane haslo nie spelnia wymogow bezpieczenstwa.");
-
+            //check if provided email address is already in use
             var user = _context.user_credentials.FirstOrDefault(user => user.user_email == userCredentials.UserEmail);
             if (user != null)
                 throw new EmailNotUniqueException("Podany adres email jest juz przypisany do innego konta. Prosze podac inny adres email.");
 
+            //validate if password meets rules
+            bool passwordMeetsRules = validatePasswordMeetsRules(userCredentials.UserPassword);
+            if (passwordMeetsRules == false)
+                throw new PasswordDoesNotMeetRulesException("Podane haslo nie spelnia wymogow bezpieczenstwa.");
 
+            //map provided data transfer object to the same type as database entity
             var credentialsToBeAdded = _mapper.Map<UserCredentials>(userCredentials);
+            //hash provided password to safely store it in database
             credentialsToBeAdded.user_password = _passwordHasher.HashPassword(credentialsToBeAdded, userCredentials.UserPassword);
             credentialsToBeAdded.refresh_token = _tokenService.CreateRefreshToken();
 
@@ -153,17 +164,25 @@ namespace ConsumptionManagerBackend.Services
 
         public void ChangePassword(ChangePasswordDto credentials)
         {
+            //method used to change users password
+            //user needs to provide his email, old password and a new one
+
+            //check if provided new password meets requirements
             bool passwordMeetsRules = validatePasswordMeetsRules(credentials.UserNewPassword);
             if (passwordMeetsRules == false)
                 throw new PasswordDoesNotMeetRulesException("Nowe haslo nie spelnia wymogow bezpieczenstwa.");
+
+            //check if provided email address exists in db
             var userCredentials = _context.user_credentials.FirstOrDefault(user => user.user_email == credentials.UserEmail);
             if (userCredentials == null)
                 throw new WrongCredentialsException("Prosze sprawdzic poprawnosc podanych danych logowania.");
 
+            //check if provided old password and password from database are equal
             var passwordVerificationResult = _passwordHasher.VerifyHashedPassword(userCredentials, userCredentials.user_password, credentials.UserOldPassword);
             if(passwordVerificationResult != PasswordVerificationResult.Success)
                 throw new WrongCredentialsException("Prosze sprawdzic poprawnosc podanych danych logowania.");
 
+            //update the password and store it as a result of hashing method
             userCredentials.user_password = _passwordHasher.HashPassword(userCredentials, credentials.UserNewPassword);
             _context.SaveChanges();
 
@@ -171,24 +190,30 @@ namespace ConsumptionManagerBackend.Services
 
         public TokenModel RefreshSession(TokenModel model)
         {
+            //method used to refresh user session
+            //as an input it is required to provide a old access token and a refresh token which is assigned to each user and stored in database
+
+            //get user id from the old access token
             ClaimsPrincipal principal = _tokenService.GetPrincipalFromOldToken(model.AccessToken);
             int userId = Convert.ToInt32(principal.FindFirst(ClaimTypes.NameIdentifier).Value);
 
+            //check if user with id read from old access token exists in database
             var user = _context.user.FirstOrDefault(userFromDb => userFromDb.user_id == userId);
             if (user == null)
-                throw new UserNotFoundException("Nie odnaleziono uzytkownika, na ktory wskazuje podany token");
+                throw new UserNotFoundException("Nie odnaleziono uzytkownika, na ktory wskazuje podany token.");
 
-            //check if provided refresh token and refresh token from db are the same
+            //check if provided refresh token and refresh token from database are the same
             var userCredentials = _context.user_credentials.FirstOrDefault(cred => cred.user_credentials_id == user.user_credentials_id);
 
+            //if they are not equal, throw an error
             if (userCredentials.refresh_token != model.RefreshToken)
-                throw new RefreshTokenNotValidException("Podany refresh token jest nieodpowiedni");
+                throw new RefreshTokenNotValidException("Podany refresh token jest nieodpowiedni.");
 
             //if everything is okay, create new tokens
             string accessToken = _tokenService.CreateToken(userCredentials);
             string refreshToken = _tokenService.CreateRefreshToken();
 
-            userCredentials.refresh_token = refreshToken;//replace refresh tokens in db
+            userCredentials.refresh_token = refreshToken;//replace refresh token in database
             _context.SaveChanges();
             return new TokenModel
             {
@@ -200,12 +225,25 @@ namespace ConsumptionManagerBackend.Services
 
         public int GetUserID()
         {
-            return Convert.ToInt32(_contextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier));
+            //method used to gen an id of user who sent the request
+            //works only if user is authenticated
+
+            int id = Convert.ToInt32(_contextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier));
+            if (id == 0)
+                throw new NoElementFoundException("Nie znaleziono uzytkownika w bazie danych.");
+            return id;
         }
 
         public ClaimsPrincipal GetUser()
         {
-            return _contextAccessor.HttpContext.User;
+            //method used to get an info about the user who sent the request
+            //works only if user is authenticated
+            //returns claims assigned to access token
+
+            var user = _contextAccessor.HttpContext.User;
+            if (user == null)
+                throw new NoElementFoundException("Nie znaleziono uzytkownika w bazie danych.");
+            return user;
         }
 
         private bool validatePasswordMeetsRules(string password)
@@ -214,7 +252,7 @@ namespace ConsumptionManagerBackend.Services
             //minimum 8 characters long
             //contain at least one upper case letter
             //contain at least one lower case letter
-            //contain at least on digit
+            //contain at least one digit
             //can not contain whitespaces
             //must contain one of the special characters
 

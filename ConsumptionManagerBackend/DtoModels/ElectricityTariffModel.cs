@@ -1,9 +1,13 @@
-﻿namespace ConsumptionManagerBackend.DtoModels
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace ConsumptionManagerBackend.DtoModels
 {
-    //class used indicates for which tariff user wants to get its details
+    //class indicates for which tariff user wants to get its details
     public class ElectricityTariffModel
     {
+        [Required]
         public string EnergySupplierName { get; set; }
+        [Required]
         public string ElectricityTariffName { get; set; }
     }
 }

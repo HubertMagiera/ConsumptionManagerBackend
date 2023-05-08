@@ -26,6 +26,7 @@ namespace ConsumptionManagerBackend.Services
         }
         public List<DeviceCategoryDto> GetCategories()
         {
+            //method used to get all available device categories from database
             var categories = _context.device_category
                                         .ProjectTo<DeviceCategoryDto>(_mapper.ConfigurationProvider)
                                         .ToList();
@@ -37,6 +38,7 @@ namespace ConsumptionManagerBackend.Services
 
         public List<ViewDeviceDto> GetDevices()
         {
+            //method used to read all devices from database
             var devices = GetDevicesFromDB();
             if (devices.Count == 0)
                 throw new NoElementFoundException("Nie znaleziono zadnych elementow.");
@@ -46,6 +48,7 @@ namespace ConsumptionManagerBackend.Services
 
         public List<ViewDeviceDto> GetDevicesForCategory(string category)
         {
+            //mathod used to read all devices from database which are assigned to provided category
             if (string.IsNullOrEmpty(category))
                 throw new WrongInputException("Prosze podac nazwe kategorii.");
             var devices = GetDevicesFromDB()
@@ -59,6 +62,7 @@ namespace ConsumptionManagerBackend.Services
 
         public ViewUserDeviceDto GetUserDevice(SearchForUserDeviceDto deviceToFind)
         {
+            //method used to return data about specified user device
             if (string.IsNullOrEmpty(deviceToFind.DeviceName) || string.IsNullOrEmpty(deviceToFind.DeviceCategory))
                 throw new NotAllDataProvidedException("Prosze podac nazwe urzadzenia i kategorii.");
 
@@ -72,6 +76,7 @@ namespace ConsumptionManagerBackend.Services
 
         public List<ViewUserDeviceDto> GetUserDevices()
         {
+            //method used to get all devices assigned to current user
             var devices = GetUserDevicesFromDB();
             if (devices.Count == 0)
                 throw new NoElementFoundException("Nie znaleziono zadnych elementow");
@@ -84,7 +89,7 @@ namespace ConsumptionManagerBackend.Services
             //user needs to provide info about device name, category and max power of device
 
             bool nameAndCategoryProvided = string.IsNullOrEmpty(deviceToAdd.DeviceName) == false && string.IsNullOrEmpty(deviceToAdd.DeviceCategoryName) == false;
-            bool maxPowerProvided = deviceToAdd.DeviceMaxPower == 0;
+            bool maxPowerProvided = deviceToAdd.DeviceMaxPower <= 0;
 
             //if some of the data is missing, throw an exception
             if (nameAndCategoryProvided == false && maxPowerProvided == false)
@@ -100,7 +105,7 @@ namespace ConsumptionManagerBackend.Services
                 throw new WrongInputException("Nie znaleziono takiej kategorii jak podana. Prosze podac poprawna nazwe kategorii.");
             int categoryID = category.device_category_id;
 
-            //if not, get device id and add new user device to user account
+            //get device id and add new user device to user account
             var device = GetDevicesFromDB().FirstOrDefault(property => property.device_name.ToLower() == deviceToAdd.DeviceName.ToLower() && property.device_category_id == categoryID);
             if (device == null)
                 throw new NoElementFoundException("Nie znaleziono urzadzenia o podanych parametrach.");
@@ -132,7 +137,7 @@ namespace ConsumptionManagerBackend.Services
 
         public void ChangeUserDeviceStatus(SearchForUserDeviceDto deviceToFind)
         {
-            //method used to change user device status from active to inactive and the other way around
+            //method used to change user device status from active to inactive and opposite
             
             //check if user provided all required data
             if (string.IsNullOrEmpty(deviceToFind.DeviceName) || string.IsNullOrEmpty(deviceToFind.DeviceCategory))
@@ -141,10 +146,10 @@ namespace ConsumptionManagerBackend.Services
             //if yes, check if user device for provided details exists
             var userDevice = GetUserDevicesFromDB().FirstOrDefault(property => property.device.device_name.ToLower() == deviceToFind.DeviceName.ToLower() &&
                                                                    property.device.device_category.device_category_name.ToLower() == deviceToFind.DeviceCategory.ToLower());
-            //if no, throw an error
+            //throw an error if user device does not exist
             if (userDevice == null)
                 throw new NoElementFoundException("Nie znaleziono urzadzenia dla podanych wartosci.");
-            //if yes, change its status
+            //if exists, change its status
             userDevice.is_active = !userDevice.is_active;
             _context.SaveChanges();
         }
@@ -153,7 +158,7 @@ namespace ConsumptionManagerBackend.Services
         {
             //method used to add device details to user device
 
-            //check if user provided all required details
+            //check if user provided all required details and if data is correct
             var device = CheckDeviceDetails(details);
 
             //check if power mode with the same power amount already exists for this device
@@ -175,8 +180,9 @@ namespace ConsumptionManagerBackend.Services
         public void UpdateUserDeviceDetails(AddUserDeviceDetailsDto details)
         {
             //method used to update power mode in user device
+            //user can change power in specified mode or can change its description
 
-            //check if all data provided and correct, and get user device from db
+            //check if user provided all required details and if data is correct
             var device = CheckDeviceDetails(details);
 
             //check if details with provided mode number exists
@@ -191,12 +197,16 @@ namespace ConsumptionManagerBackend.Services
 
         private List<Device>GetDevicesFromDB()
         {
+            //method used to get all devices from database
+            //this method is invoked in other methods which return list of devices
             var devices = _context.device.Include(device => device.device_category).ToList();
             return devices;
         }
 
         private List<UserDevice>GetUserDevicesFromDB()
         {
+            //method used to get all devices assigned to user who sent the request
+            //this method is later invoked in other methods which require access to all devices assigned to a user
             var userDevices = _context.user_device
                                         .Where(property => property.user_id == _userService.GetUserID())
                                         .Include(userDev => userDev.device)
@@ -210,7 +220,7 @@ namespace ConsumptionManagerBackend.Services
         private UserDevice CheckDeviceDetails(AddUserDeviceDetailsDto details)
         {
             //check if user provided all required details
-            if (string.IsNullOrEmpty(details.DeviceName) || string.IsNullOrEmpty(details.DeviceCategory) || details.DevicePowerInMode == 0 || details.ModeNumber == 0)
+            if (string.IsNullOrEmpty(details.DeviceName) || string.IsNullOrEmpty(details.DeviceCategory) || details.DevicePowerInMode <= 0 || details.ModeNumber <= 0)
                 throw new NotAllDataProvidedException("Prosze podac wszystkie wymagane dane.");
 
             //if all data provided, check if user owns device with the same name and category as provided

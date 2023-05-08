@@ -2,6 +2,8 @@
 {
     public class ExceptionHandlingMiddleware : IMiddleware
     {
+        //this is used as a try catch for whole API
+        //whenever exception is thrown, it is catched here and message and status code is returned based on exception type
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
             try

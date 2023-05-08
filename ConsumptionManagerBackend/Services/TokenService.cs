@@ -31,8 +31,10 @@ namespace ConsumptionManagerBackend.Services
 
             //user found here will be used to create claims to identify him
             var user = _context.user.FirstOrDefault(userFromDB => userFromDB.user_credentials_id == cred.user_credentials_id);
-                
-            var claims = new List<Claim>()//claims represent info about the user
+
+            //claims represent info about the user
+            //method uses 4 claims to identify the user: his id, name, surname and email address
+            var claims = new List<Claim>()
             {
                 new Claim(ClaimTypes.NameIdentifier,user.user_id.ToString()),
                 new Claim(ClaimTypes.Name,user.user_name),
@@ -40,6 +42,7 @@ namespace ConsumptionManagerBackend.Services
                 new Claim(ClaimTypes.Email,cred.user_email)
             };
 
+            //secret key stored in AuthenticationSettings class, and binded from appsettings.json file
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_settings.Key));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature);
             var tokenDescriptor = new JwtSecurityToken(issuer: _settings.Issuer, audience: _settings.Audience, claims: claims,
@@ -52,6 +55,8 @@ namespace ConsumptionManagerBackend.Services
             //method used to create a refresh token which can be used to generate a new access token
             //this token is valid for 7 days and is stored in database under its owner
             //it does not contain list of claims
+
+            //secret key stored in AuthenticationSettings class, and binded from appsettings.json file
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_settings.KeyForRefreshToken));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature);
             var tokenDescriptor = new JwtSecurityToken(issuer: _settings.Issuer, audience: _settings.Audience,
@@ -64,6 +69,8 @@ namespace ConsumptionManagerBackend.Services
         {
             //method used to get info about the user from the expired access token
             //this info is later used to find correct user in database and to compare provided refresh token with the one from database
+
+            //set of validation parameters used to identify if expired access token is correct
             var validationParameters = new TokenValidationParameters()
             {
                 ValidateIssuer = true,
@@ -79,8 +86,6 @@ namespace ConsumptionManagerBackend.Services
             var principal = tokenHandler.ValidateToken(oldToken, validationParameters, out SecurityToken validatedToken);
 
             return principal;
-
-
         }
     }
 }

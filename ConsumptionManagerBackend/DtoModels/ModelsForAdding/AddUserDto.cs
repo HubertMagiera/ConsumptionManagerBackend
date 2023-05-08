@@ -10,8 +10,7 @@ namespace ConsumptionManagerBackend.DtoModels.ModelsForAdding
         public string UserSurname { get; set; }
         [Required]
         public int UserCredentialsId { get; set; }
-        //[Required]
-        //public int ElectricityTariffId { get; set; }
+
         [Required]
         public string EnergySupplierName { get; set; }
         [Required]

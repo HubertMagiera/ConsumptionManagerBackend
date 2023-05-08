@@ -27,6 +27,14 @@ namespace ConsumptionManagerBackend.Database
         {
             //specifying that entities have primary keys and indicating them
             //defining relationships between classes
+
+            //.HasKey()  indicates which field is a primary key in database
+            //.Property.(x => x.Field).* is used to define if field is required or if it has max length etc
+            //.HasOne() indicates that record from table A is in relation with one row from table B
+            //.WithMany() indicates that record from table B can be in relation with multiple rows from table A
+            //.WithOne() indicates that record from table B can be in relation with only one row from table A
+            //.HasForeignKey() indicates which property is foreign key for the relation between the tables
+
             modelBuilder.Entity<UserCredentials>(userCredentials => 
             {
                 userCredentials.HasKey(key => key.user_credentials_id);
