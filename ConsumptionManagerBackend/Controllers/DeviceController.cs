@@ -44,20 +44,20 @@ namespace ConsumptionManagerBackend.Controllers
         [HttpGet]
         [Route("myDevices")]
         [Authorize]
-        public ActionResult<List<ViewDeviceDto>> GetUserDevices()
+        public ActionResult<List<ViewUserDeviceDto>> GetUserDevices()
         {
             return Ok(_deviceService.GetUserDevices());
         }
         [HttpGet]
         [Route("myDevice")]
         [Authorize]
-        public ActionResult<ViewDeviceDto> GetUserDevice([FromBody] SearchForUserDeviceDto deviceToFind)
+        public ActionResult<ViewUserDeviceDto> GetUserDevice([FromBody] SearchForUserDeviceDto deviceToFind)
         {
             return Ok(_deviceService.GetUserDevice(deviceToFind));
         }
 
         [HttpPost]
-        [Route("myDevices/addNew")]
+        [Route("myDevice/addNew")]
         [Authorize]
         public ActionResult AddNewUserDevice([FromBody] AddUserDeviceDto deviceToBeAdded)
         {
@@ -70,7 +70,7 @@ namespace ConsumptionManagerBackend.Controllers
         }
 
         [HttpPut]
-        [Route("myDevices/changeStatus")]
+        [Route("myDevice/changeStatus")]
         [Authorize]
         public ActionResult ChangeUserDeviceStatus([FromBody] SearchForUserDeviceDto deviceToUpdate)
         {
